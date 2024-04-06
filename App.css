@@ -9,6 +9,8 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
+    height: 40vmin;
+    pointer-events: none;
     animation: App-logo-spin infinite 20s linear;
   }
 }
@@ -19,24 +21,36 @@ nav ul
   margin: 0;
   padding: 0;
   display: flex; /* layout the list items in a row */
+  background-color: #922085;
 }
 
 nav ul li 
 {
 padding: 10px; /* spacing we prefer */
 margin-right: 10px; /* space between items */
+background-color: #922085;
 }
 
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  height: 200px; 
+  width: auto; /* Maintain aspect ratio */
+}
 
 .App-header {
-  background-color: #282c34;
+  background-color: #922085;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
+  color: rgb(0, 0, 0);
 }
 
 .App-link {

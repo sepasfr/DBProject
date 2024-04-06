@@ -33,7 +33,7 @@ CREATE TABLE serviceType (
     name VARCHAR(225) NOT NULL,
     cost VARCHAR(10),
     duration VARCHAR(10)
-)
+);
 
 -- Represents an individual job
 -- A job is a service performed on a vehicle by a mechanic
@@ -46,4 +46,16 @@ CREATE TABLE job (
     FOREIGN KEY (vehicle) REFERENCES vehicle(vin),
     FOREIGN KEY (mechanic) REFERENCES mechanic(id),
     FOREIGN KEY (serviceType) REFERENCES serviceType(id)
-)
+);
+
+-- Represents an individual appointment
+CREATE TABLE appointment (
+    day DATE NOT NULL,
+    customer CHAR(10) NOT NULL,
+    vehicle VARCHAR(20) NOT NULL,
+    serviceType VARCHAR(20) NOT NULL,
+    note TEXT DEFAULT NULL,
+    FOREIGN KEY (customer) REFERENCES customer(phone),
+    FOREIGN KEY (vehicle) REFERENCES vehicle(vin),
+    FOREIGN KEY (serviceType) REFERENCES serviceType(id)
+);

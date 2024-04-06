@@ -10,6 +10,7 @@ import {
   Link
 } from "react-router-dom";
 //each page component
+const Home = () => <div> <h2> Home </h2></div>
 const Mechanics = () => <div><h2>Mechanics</h2></div>;
 const ServiceTracking = () => <div><h2>Service Tracking</h2></div>;
 const Appointments = () => <div><h2>Appointments</h2></div>;
@@ -23,22 +24,25 @@ const App = () => {
       <div>
         <nav>
           <ul>
+            <li> <Link to="/home" > Home </Link></li>
             <li><Link to="/mechanics">Mechanics</Link></li>
             <li><Link to="/service-tracking">Service Tracking</Link></li>
             <li><Link to="/appointments">Appointments</Link></li>
             <li><Link to="/customer-list">Customer List</Link></li>
             <li><Link to="/service-pricing">Service Pricing</Link></li>
           </ul>
+          <img src='/ShopWizard.png' alt="ShopWizard Logo" className="App-logo" />
         </nav>
 
         <Routes>
+          <Route path="/home" element={<Home />} />
           <Route path="/mechanics" element={<Mechanics />} />
           <Route path="/service-tracking" element={<ServiceTracking />} />
           <Route path="/appointments" element={<Appointments />} />
           <Route path="/customer-list" element={<CustomerList />} />
           <Route path="/service-pricing" element={<ServicePricing />} />
           {/* Redirect to mechanics as a default */}
-          <Route path="/" element={<Mechanics />} />
+          <Route path="/" element={<Home />} />
         </Routes>
       </div>
     </Router>

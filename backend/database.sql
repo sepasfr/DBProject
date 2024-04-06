@@ -5,8 +5,15 @@ CREATE DATABASE IF NOT EXISTS ShopWizard;
 CREATE TABLE customer (
     name VARCHAR(225) NOT NULL,
     email VARCHAR(225) DEFAULT NULL,
+    phone CHAR(10) PRIMARY KEY
+);
+
+-- Represents each mechanic
+CREATE TABLE mechanic (
+    name VARCHAR(225) NOT NULL,
+    email VARCHAR(225) DEFAULT NULL,
     phone CHAR(10) NOT NULL,
-    PRIMARY KEY (phone)
+    id VARCHAR(20) PRIMARY KEY
 );
 
 -- Represents each vehicle, all fields are not null
@@ -21,6 +28,22 @@ CREATE TABLE vehicle (
 );
 
 -- Represents each type of service that can be done
-CREATE TABLE services (
-    id VARCHAR(225) PRIMARY KEY
+CREATE TABLE serviceType (
+    id VARCHAR(20) PRIMARY KEY,
+    name VARCHAR(225) NOT NULL,
+    cost VARCHAR(10),
+    duration VARCHAR(10)
+)
+
+-- Represents an individual job
+-- A job is a service performed on a vehicle by a mechanic
+CREATE TABLE job (
+    id VARCHAR(20) PRIMARY KEY,
+    vehicle VARCHAR(20) NOT NULL,
+    mechanic VARCHAR(20) DEFAULT NULL,
+    serviceType VARCHAR(20) NOT NULL,
+    status VARCHAR(225) DEFAULT NULL,
+    FOREIGN KEY (vehicle) REFERENCES vehicle(vin),
+    FOREIGN KEY (mechanic) REFERENCES mechanic(id),
+    FOREIGN KEY (serviceType) REFERENCES serviceType(id)
 )

@@ -1,5 +1,5 @@
 -- Create the default database for the app
-CREATE DATABASE IF NOT EXISTS ShopWizard;
+CREATE DATABASE IF NOT EXISTS shopWizard;
 
 -- Represents each customer, name and phone must be not null
 CREATE TABLE customer (
@@ -31,7 +31,7 @@ CREATE TABLE vehicle (
 CREATE TABLE serviceType (
     id VARCHAR(20) PRIMARY KEY,
     name VARCHAR(225) NOT NULL,
-    cost VARCHAR(10),
+    cost VARCHAR(10) NOT NULL,
     duration VARCHAR(10)
 );
 

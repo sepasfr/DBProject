@@ -19,7 +19,7 @@ cursor = conn.cursor()
 app = Flask(__name__)
 
 ## get, add, and remove for customer table
-@app.route('/shopWizard/getCustomer', methods =['get'])
+@app.route('/shopWizard/getCustomer', methods = ['get'])
 def getCustomer():
     ## param for input
     input = str(request.args['id'])

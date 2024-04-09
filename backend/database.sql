@@ -1,5 +1,5 @@
--- Create the default database for the app
-CREATE DATABASE IF NOT EXISTS shopWizard;
+-- mySQL setup for the backend database of the ShopWizard mechanic shop
+-- management web application
 
 -- Represents each customer, name and phone must be not null
 CREATE TABLE customer (

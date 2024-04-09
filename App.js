@@ -10,7 +10,17 @@ import {
   Link
 } from "react-router-dom";
 //each page component
-const Home = () => <div> <h2> Home </h2></div>
+const Home = () => 
+{
+<div><h2>Home</h2></div>
+return (
+  <div className="image-container">
+    <img src="/Man2.jpg" alt="Man working on Car" />
+    <div className="text-over-image">Welcome to ShopWizard!</div>
+  </div>
+);
+
+}
 const Mechanics = () => <div><h2>Mechanics</h2></div>;
 const ServiceTracking = () => <div><h2>Service Tracking</h2></div>;
 const Appointments = () => <div><h2>Appointments</h2></div>;
@@ -24,14 +34,13 @@ const App = () => {
       <div>
         <nav>
           <ul>
-            <li> <Link to="/home" > Home </Link></li>
+            <li> <Link to="/home">Home</Link></li>
             <li><Link to="/mechanics">Mechanics</Link></li>
             <li><Link to="/service-tracking">Service Tracking</Link></li>
             <li><Link to="/appointments">Appointments</Link></li>
             <li><Link to="/customer-list">Customer List</Link></li>
             <li><Link to="/service-pricing">Service Pricing</Link></li>
           </ul>
-          <img src='/ShopWizard.png' alt="ShopWizard Logo" className="App-logo" />
         </nav>
 
         <Routes>
@@ -47,6 +56,12 @@ const App = () => {
       </div>
     </Router>
   );
+
+
+  
+
+
+  
 };
 
 export default App;

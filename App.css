@@ -3,26 +3,52 @@
 }
 
 .App-logo {
-  height: 40vmin;
+  height: 5vmin;
   pointer-events: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
-    height: 40vmin;
+    height: 5vmin;
     pointer-events: none;
-    animation: App-logo-spin infinite 20s linear;
   }
 }
 
-nav ul 
-{
-  list-style-type: none; /* Removes the default list styling */
+.image-container {
+  position: relative;
+  text-align: center;
+}
+
+.image-container img {
+  width: 100%; /* Adjust as necessary */
+  height: auto; /* Adjust if you want a specific height */
+}
+
+.text-over-image {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white; /* Choose the color that makes the text stand out over your image */
+  font-size: 2em; /* Adjust as necessary */
+  /* Add more styles as needed */
+}
+
+body, html {
+  margin: 0px;
+  padding: 10px;
+  width: 100%;
+}
+
+nav ul {
+  list-style-type: none;
   margin: 0;
   padding: 0;
-  display: flex; /* layout the list items in a row */
+  display: flex;
   background-color: #922085;
+  width: 100%; 
 }
+
 
 nav ul li 
 {
@@ -31,14 +57,27 @@ margin-right: 10px; /* space between items */
 background-color: #922085;
 }
 
+nav ul li a {
+  text-decoration: none; /* removes underline from links */
+  color: #FFFFFF; 
+  font-family: 'Arial', sans-serif; 
+}
+
 nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  margin: 0;
+  z-index: 10; 
+  background-color: #922085;
 }
 
 .logo {
-  height: 200px; 
+  height: 20px; 
   width: auto; /* Maintain aspect ratio */
 }
 

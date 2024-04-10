@@ -7,23 +7,25 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Link
+  Link,
+  useNavigate // Step 1: Import useNavigate
 } from "react-router-dom";
-//each page component
-const Home = () => 
-{
-<div><h2>Home</h2></div>
-return (
-  <div className="image-container">
-    <img src="/Man2.jpg" alt="Man working on Car" />
-    <div className="text-over-image">Welcome to ShopWizard!</div>
-    <div style={{ textAlign: 'center', marginTop: '20px' }}>
-  <button onClick={() => console.log('Get Started clicked')} style={{position: 'absolute', top: '20%', left: '44%', transform: 'translate(0%, 0%)', padding: '10px 20px', fontSize: '32px' }}> Get Started </button>
-  </div>
-</div>
-);
-}
 
+//each page component
+const Home = () => {
+  const navigate = useNavigate(); // Step 2: Use useNavigate to create navigate function
+
+  return (
+    <div className="image-container">
+      <img src="/Man2.jpg" alt="Man working on Car" />
+      <div className="text-over-image">Welcome to ShopWizard!</div>
+      <div style={{ textAlign: 'center', marginTop: '20px' }}>
+        {/* Step 3: Use navigate function on button click */}
+        <button onClick={() => navigate('/appointments')} style={{position: 'absolute', top: '20%', left: '44%', transform: 'translate(0%, 0%)', padding: '10px 20px', fontSize: '32px' }}> Get Started </button>
+      </div>
+    </div>
+  );
+}
 
 const Mechanics = () => <div><h2>Mechanics</h2></div>;
 const ServiceTracking = () => <div><h2>Service Tracking</h2></div>;
@@ -37,7 +39,6 @@ const Footer = () => (
     <p>vl02201@georgiasouthern.edu</p>
   </footer>
 );
-
 
 // main app component
 const App = () => {
@@ -62,18 +63,12 @@ const App = () => {
           <Route path="/appointments" element={<Appointments />} />
           <Route path="/customer-list" element={<CustomerList />} />
           <Route path="/service-pricing" element={<ServicePricing />} />
-          {/* Redirect to mechanics as a default */}
+          {/* Redirect to home as a default */}
           <Route path="/" element={<Home />} />
         </Routes>
       </div>
-    </Router><Footer> </Footer></>
+    </Router><Footer></Footer></>
   );
-
-
-  
-
-
-  
 };
 
 export default App;

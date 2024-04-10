@@ -76,6 +76,18 @@ nav {
   background-color: #922085;
 }
 
+footer {
+  background-color: #922085; /* Purple background */
+  color: white; /* White text color */
+  text-align: center;
+  padding: 10px 0; /* Add some padding */
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  font-family: 'Arial', sans-serif; 
+}
+
 .logo {
   height: 20px; 
   width: auto; /* Maintain aspect ratio */

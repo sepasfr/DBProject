@@ -1,53 +1,28 @@
-import logo from './logo.svg';
 import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import Home from './Home';
+import Appointments from './Appointments';
+import Mechanics from './Mechanics';
+import ServicePricing from './ServicePricing';
+import ServiceTracking from './ServiceTracking';
+import CustomerList from './CustomerList';
 import './App.css';
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Link,
-  useNavigate // Step 1: Import useNavigate
-} from "react-router-dom";
 
-//each page component
-const Home = () => {
-  const navigate = useNavigate(); // Step 2: Use useNavigate to create navigate function
-
-  return (
-    <div className="image-container">
-      <img src="/Man2.jpg" alt="Man working on Car" />
-      <div className="text-over-image">Welcome to ShopWizard!</div>
-      <div style={{ textAlign: 'center', marginTop: '20px' }}>
-        {/* Step 3: Use navigate function on button click */}
-        <button onClick={() => navigate('/appointments')} style={{position: 'absolute', top: '20%', left: '44%', transform: 'translate(0%, 0%)', padding: '10px 20px', fontSize: '32px' }}> Get Started </button>
-      </div>
-    </div>
-  );
-}
-
-const Mechanics = () => <div><h2>Mechanics</h2></div>;
-const ServiceTracking = () => <div><h2>Service Tracking</h2></div>;
-const Appointments = () => <div><h2>Appointments</h2></div>;
-const CustomerList = () => <div><h2>Customer List</h2></div>;
-const ServicePricing = () => <div><h2>Service Pricing</h2></div>;
 const Footer = () => (
   <footer>
-    <p> Contact: </p>
+    <p>Contact:</p>
     <p>dm26690@georgiasouthern.edu</p>
     <p>vl02201@georgiasouthern.edu</p>
   </footer>
 );
 
-// main app component
 const App = () => {
   return (
-    <><Router>
+    <Router>
       <div>
         <nav>
           <ul>
-            <li> <Link to="/home">Home</Link></li>
+            <li><Link to="/home">Home</Link></li>
             <li><Link to="/mechanics">Mechanics</Link></li>
             <li><Link to="/service-tracking">Service Tracking</Link></li>
             <li><Link to="/appointments">Appointments</Link></li>
@@ -55,7 +30,6 @@ const App = () => {
             <li><Link to="/service-pricing">Service Pricing</Link></li>
           </ul>
         </nav>
-
         <Routes>
           <Route path="/home" element={<Home />} />
           <Route path="/mechanics" element={<Mechanics />} />
@@ -63,11 +37,11 @@ const App = () => {
           <Route path="/appointments" element={<Appointments />} />
           <Route path="/customer-list" element={<CustomerList />} />
           <Route path="/service-pricing" element={<ServicePricing />} />
-          {/* Redirect to home as a default */}
           <Route path="/" element={<Home />} />
         </Routes>
       </div>
-    </Router><Footer></Footer></>
+      <Footer />
+    </Router>
   );
 };
 

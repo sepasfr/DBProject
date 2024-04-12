@@ -10,7 +10,7 @@ import mysql.connector
 conn = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="Hello2002",
+    password="St@llions123",
     database="shopWizard"
 )
 
@@ -19,7 +19,7 @@ cursor = conn.cursor()
 
 app = Flask(__name__)
 
-## ---------------- get, add, and remove for CUSTOMER table --------------------
+## ---------------- get, getAll, add, and remove for CUSTOMER table --------------------
 ## example request: http://127.0.0.1:5000/shopWizard/getCustomer?phone=1234567890
 @app.route('/shopWizard/getCustomer', methods = ['get'])
 def getCustomer():
@@ -40,6 +40,23 @@ def getCustomer():
         return jsonify(result), 200
     else:
         return jsonify({'error': 'customer not found'}), 404
+
+##example request: http://127.0.0.1:5000/shopWizard/getAllCustomers
+@app.route('/shopWizard/getAllCustomers', methods=['GET'])
+def getAllCustomers():
+        query = "SELECT * FROM customer"
+        cursor.execute(query)
+        rows = cursor.fetchall()
+        customers = []
+
+        # Check if any customers were found
+        if rows:
+            columns = [column[0] for column in cursor.description]
+            for row in rows:
+                customers.append(dict(zip(columns, row)))
+            return jsonify(customers), 200
+        else:
+            return jsonify({'message': 'No customers found'}), 404
 
 ## example request: http://127.0.0.1:5000/shopWizard/addCustomer?name=John%20Doe&email=johndoe123@gmail.com&phone=1234567890
 ## '%20' is the special char for a space, use '&' between params

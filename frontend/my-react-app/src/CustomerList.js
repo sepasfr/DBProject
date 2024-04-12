@@ -11,7 +11,6 @@ const CustomerList = () => {
                 setCustomers(response.data);
             } catch (error) {
                 console.error('Error fetching customers:', error);
-                // Optionally handle error state
             }
         };
 

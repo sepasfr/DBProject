@@ -3,6 +3,7 @@
 
 ## import/create insstance of flask object
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 ## allows for interaction with mysql server through python
 import mysql.connector
 
@@ -10,7 +11,7 @@ import mysql.connector
 conn = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="St@llions123",
+    password="Hello2002",
     database="shopWizard"
 )
 
@@ -18,6 +19,9 @@ conn = mysql.connector.connect(
 cursor = conn.cursor()
 
 app = Flask(__name__)
+
+# Configuring CORS for all routes and origins
+CORS(app)
 
 ## ---------------- get, getAll, add, and remove for CUSTOMER table --------------------
 ## example request: http://127.0.0.1:5000/shopWizard/getCustomer?phone=1234567890
@@ -41,7 +45,7 @@ def getCustomer():
     else:
         return jsonify({'error': 'customer not found'}), 404
 
-##example request: http://127.0.0.1:5000/shopWizard/getAllCustomers
+## example request: http://127.0.0.1:5000/shopWizard/getAllCustomers
 @app.route('/shopWizard/getAllCustomers', methods=['GET'])
 def getAllCustomers():
         query = "SELECT * FROM customer"
@@ -137,6 +141,23 @@ def getMechanic():
         return jsonify(result), 200
     else:
         return jsonify({'error': 'mechanic not found'}), 404
+    
+## example request: http://127.0.0.1:5000/shopWizard/getAllMechanics
+@app.route('/shopWizard/getAllMechanics', methods=['GET'])
+def getAllMechanics():
+        query = "SELECT * FROM Mechanic"
+        cursor.execute(query)
+        rows = cursor.fetchall()
+        mechanics = []
+
+        # Check if any customers were found
+        if rows:
+            columns = [column[0] for column in cursor.description]
+            for row in rows:
+                mechanics.append(dict(zip(columns, row)))
+            return jsonify(mechanics), 200
+        else:
+            return jsonify({'message': 'No mechanics found'}), 404
 
 ## example request: http://127.0.0.1:5000/shopWizard/addMechanic?name=Kelly%20Amber&email=kellyamber69@gmail.com&phone=1111111111&id=105
 ## '%20' is the special char for a space, use '&' between params
@@ -218,6 +239,23 @@ def getVehicle():
         return jsonify(result), 200
     else:
         return jsonify({'error': 'vehicle not found'}), 404
+    
+## example request: http://127.0.0.1:5000/shopWizard/getAllVehicles
+@app.route('/shopWizard/getAllVehicles', methods=['GET'])
+def getAllVehicles():
+        query = "SELECT * FROM Vehicle"
+        cursor.execute(query)
+        rows = cursor.fetchall()
+        vehicles = []
+
+        # Check if any customers were found
+        if rows:
+            columns = [column[0] for column in cursor.description]
+            for row in rows:
+                vehicles.append(dict(zip(columns, row)))
+            return jsonify(vehicles), 200
+        else:
+            return jsonify({'message': 'No Vehicles found'}), 404
 
 ## example request: http://127.0.0.1:5000/shopWizard/addVehicle?vin=2C4RDGCG0ER295952&owner=1234567890&make=Dodge&model=Grand%20Caravan&color=blue&year=2014
 ## '%20' is the special char for a space, use '&' between params
@@ -300,6 +338,23 @@ def getServiceType():
         return jsonify(result), 200
     else:
         return jsonify({'error': 'service type not found'}), 404
+    
+## example request: http://127.0.0.1:5000/shopWizard/getAllServiceTypes
+@app.route('/shopWizard/getAllServiceTypes', methods=['GET'])
+def getAllServiceTypes():
+        query = "SELECT * FROM serviceType"
+        cursor.execute(query)
+        rows = cursor.fetchall()
+        ServiceTypes = []
+
+        # Check if any customers were found
+        if rows:
+            columns = [column[0] for column in cursor.description]
+            for row in rows:
+                ServiceTypes.append(dict(zip(columns, row)))
+            return jsonify(ServiceTypes), 200
+        else:
+            return jsonify({'message': 'No service types found'}), 404
 
 ## example request: http://127.0.0.1:5000/shopWizard/addServiceType?id=101&name=Oil%20Change&cost=50&duration=0.5
 ## '%20' is the special char for a space, use '&' between params

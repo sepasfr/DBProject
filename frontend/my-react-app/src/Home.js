@@ -1,3 +1,6 @@
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+
 const Home = () => 
 {
   const navigate = useNavigate(); // Step 2: Use useNavigate to create navigate function

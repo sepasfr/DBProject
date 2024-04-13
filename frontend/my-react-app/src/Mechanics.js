@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const MechanicList = () => {
+const Mechanics = () => {
+    console.log("Mechanics component is rendering");
+
     const [mechanics, setMechanics] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -91,4 +93,4 @@ const MechanicList = () => {
     );
 };
 
-export default MechanicList;
+export default Mechanics;

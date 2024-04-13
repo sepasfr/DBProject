@@ -3,25 +3,32 @@ import axios from 'axios';
 
 const Appointments = () => {
     const [appointments, setAppointments] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchAppointments = async () => {
             try {
-                //Temporary link, Idk what the final link is gonna be 
                 const response = await axios.get('http://127.0.0.1:5000/shopWizard/getAppointments');
                 setAppointments(response.data);
-            } catch (error) {
-                console.error('Error fetching appointments:', error);
+            } catch (err) {
+                console.error('Error fetching appointments:', err);
+                setError(err.response ? err.response.data : err.message);
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchAppointments();
     }, []);
 
+    if (loading) return <p>Loading appointments...</p>;
+    if (error) return <p>Error fetching appointments: {error}</p>;
+
     return (
-        <div>
-            <h2>Appointments</h2>
-            <table>
+        <div style={{ width: '80%', margin: '0 auto', textAlign: 'center' }}>
+            <h2>Appointments List</h2>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                     <tr>
                         <th>Day</th>

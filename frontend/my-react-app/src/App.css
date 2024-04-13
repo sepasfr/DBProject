@@ -7,6 +7,12 @@
   pointer-events: none;
 }
 
+.App-main {
+  padding-top: 50px; 
+  padding-bottom: 50px;
+}
+
+
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     height: 5vmin;
@@ -38,6 +44,10 @@ body, html {
   margin: 0px;
   padding: 10px;
   width: 100%;
+}
+
+.Mechanics {
+  z-index: 15; /* Higher than nav and footer */
 }
 
 nav ul {

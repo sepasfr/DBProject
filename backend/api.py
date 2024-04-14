@@ -194,7 +194,7 @@ def addMechanic():
 @app.route('/shopWizard/removeMechanic', methods = ['get'])
 def removeMechanic():
     ## extract input
-    id = request.args.get('id')
+    id = str(request.args.get('id'))
 
     # Check if id number is provided
     if not id:
@@ -202,8 +202,8 @@ def removeMechanic():
     
     ## execute SQL query to remove mechanic
     try:
-        query = "DELETE FROM mechanic WHERE id = " + str(id)
-        cursor.execute(query)
+        query = "DELETE FROM mechanic WHERE id = %s"
+        cursor.execute(query, (id,))
     except mysql.connector.Error as e:
         error_message = "Error removing mechanic: " + str(e)
         return jsonify({'error': error_message})

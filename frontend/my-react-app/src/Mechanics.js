@@ -46,13 +46,22 @@ const MechanicList = () => {
 
     const saveEditMechanic = async () => {
         const { id, name, email, phone } = editMechanicData;
-        const uri = `http://127.0.0.1:5000/shopWizard/addMechanic?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&phone=${phone}&id=${id}`;
+        
         try {
+            // First, delete the existing mechanic
+            await axios.get(`http://127.0.0.1:5000/shopWizard/removeMechanic?id=${id}`);
+            
+            // Then, add a new mechanic with the modified information
+            const uri = `http://127.0.0.1:5000/shopWizard/addMechanic?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&phone=${phone}&id=${id}`;
             await axios.get(uri);
+            
+            // Update the mechanics list with the modified mechanic
             setMechanics(prevMechanics => prevMechanics.map(mech => {
                 if (mech.id === id) return {...editMechanicData};
                 return mech;
             }));
+            
+            // Close the edit modal
             closeEditModal();
         } catch (err) {
             console.error('Failed to edit mechanic:', err);

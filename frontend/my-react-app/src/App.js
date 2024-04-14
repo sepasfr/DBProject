@@ -5,7 +5,7 @@ import Appointments from './Appointments';
 import Mechanics from './Mechanics';
 import ServicePricing from './ServicePricing';
 import ServiceTracking from './ServiceTracking';
-import CustomerList from './CustomerList';
+import Customers from './Customers';
 import './App.css';
 
 const Footer = () => (
@@ -26,7 +26,7 @@ const App = () => {
             <li><Link to="/mechanics">Mechanics</Link></li>
             <li><Link to="/service-tracking">Service Tracking</Link></li>
             <li><Link to="/appointments">Appointments</Link></li>
-            <li><Link to="/customer-list">Customer List</Link></li>
+            <li><Link to="/customers">Customers</Link></li>
             <li><Link to="/service-pricing">Service Pricing</Link></li>
           </ul>
         </nav>
@@ -35,7 +35,7 @@ const App = () => {
           <Route path="/mechanics" element={<Mechanics />} />
           <Route path="/service-tracking" element={<ServiceTracking />} />
           <Route path="/appointments" element={<Appointments />} />
-          <Route path="/customer-list" element={<CustomerList />} />
+          <Route path="/customers" element={<Customers />} />
           <Route path="/service-pricing" element={<ServicePricing />} />
           <Route path="/" element={<Home />} />
         </Routes>

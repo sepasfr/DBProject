@@ -19,46 +19,47 @@ CREATE TABLE mechanic (
 -- Represents each vehicle, all fields are not null
 CREATE TABLE vehicle (
     vin VARCHAR(20) PRIMARY KEY,
-    owner CHAR(10) NOT NULL,
+    owner CHAR(10) DEFAULT NULL,
     make VARCHAR(225) NOT NULL,
     model VARCHAR(225) NOT NULL,
     color VARCHAR(225) NOT NULL,
-    year CHAR(4) NOT NULL,
-    FOREIGN KEY (owner) REFERENCES customer(phone)
+    year INT(4) NOT NULL,
+    FOREIGN KEY (owner) REFERENCES customer(phone) ON UPDATE CASCADE
 );
 
 -- Represents each type of service that can be done
 CREATE TABLE serviceType (
     id VARCHAR(20) PRIMARY KEY,
     name VARCHAR(225) NOT NULL,
-    cost VARCHAR(10) NOT NULL,
+    cost DECIMAL(10,2) NOT NULL,
     duration VARCHAR(20)
 );
 
 -- Represents an individual job
 -- A job is a service performed on a vehicle by a mechanic
 CREATE TABLE job (
-    id VARCHAR(20) PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     vehicle VARCHAR(20) NOT NULL,
     mechanic VARCHAR(20) DEFAULT NULL,
     serviceType VARCHAR(20) NOT NULL,
     status VARCHAR(225) DEFAULT NULL,
-    FOREIGN KEY (vehicle) REFERENCES vehicle(vin),
-    FOREIGN KEY (mechanic) REFERENCES mechanic(id),
-    FOREIGN KEY (serviceType) REFERENCES serviceType(id)
+    FOREIGN KEY (vehicle) REFERENCES vehicle(vin) ON UPDATE CASCADE,
+    FOREIGN KEY (mechanic) REFERENCES mechanic(id) ON UPDATE CASCADE,
+    FOREIGN KEY (serviceType) REFERENCES serviceType(id) ON UPDATE CASCADE
 );
 
 -- Represents an individual appointment
 CREATE TABLE appointment (
-    day DATE NOT NULL,
-    customer CHAR(10) NOT NULL,
+    day DATETIME NOT NULL,
+    customer CHAR(10) DEFAULT NULL,
     vehicle VARCHAR(20) NOT NULL,
     serviceType VARCHAR(20) NOT NULL,
     note TEXT DEFAULT NULL,
-    FOREIGN KEY (customer) REFERENCES customer(phone),
-    FOREIGN KEY (vehicle) REFERENCES vehicle(vin),
-    FOREIGN KEY (serviceType) REFERENCES serviceType(id)
+    FOREIGN KEY (customer) REFERENCES customer(phone) ON UPDATE CASCADE,
+    FOREIGN KEY (vehicle) REFERENCES vehicle(vin) ON UPDATE CASCADE,
+    FOREIGN KEY (serviceType) REFERENCES serviceType(id) ON UPDATE CASCADE
 );
+
 
 
 -- DEMO Data: Represents a shop that is set up, has customers, vehicles,
@@ -186,3 +187,49 @@ INSERT INTO serviceType (id, name, cost, duration) VALUES
 ('SERV040', 'Automotive AC Recharge', '100.00', '60');
 
 
+-- Inserting example jobs
+INSERT INTO job (vehicle, mechanic, serviceType, status) VALUES
+('1HGCM82633A004352', 'MECH001', 'SERV001', 'Scheduled'),
+('1N4AL11D75C109151', 'MECH002', 'SERV003', 'Completed'),
+('WVWZZZ3CZ8E105784', 'MECH003', 'SERV020', 'In Progress'),
+('JM1GL1VM5J1313568', 'MECH004', 'SERV006', 'Scheduled'),
+('2HKRM3H78HH521689', 'MECH005', 'SERV024', 'Completed'),
+('1FA6P8CF0F5390882', 'MECH006', 'SERV007', 'Scheduled'),
+('3CZRM3H53GG722462', 'MECH007', 'SERV005', 'Scheduled'),
+('5XYKT3A69EG463761', 'MECH008', 'SERV016', 'Completed'),
+('JN8AS5MT8CW290164', 'MECH009', 'SERV010', 'In Progress'),
+('1C4RJFAG0FC678299', 'MECH010', 'SERV011', 'Scheduled'),
+('4T1BF1FK5HU305782', 'MECH011', 'SERV012', 'Completed'),
+('1G1ZE5ST6GF279630', 'MECH012', 'SERV014', 'Scheduled'),
+('3FA6P0LU8JR137742', 'MECH013', 'SERV015', 'Scheduled'),
+('19UDE2F32GA001401', 'MECH014', 'SERV018', 'Completed'),
+('2T1BURHEXHC835432', 'MECH001', 'SERV022', 'In Progress'),
+('KL7CJKSB5FB267542', 'MECH002', 'SERV023', 'Scheduled'),
+('1G1FB1RS5H0120344', 'MECH003', 'SERV025', 'Completed'),
+('2C3CDZAG9GH136582', 'MECH004', 'SERV026', 'Scheduled'),
+('3N1AB7AP2FY312345', 'MECH005', 'SERV027', 'Scheduled'),
+('1FMCU0F78HUC35678', 'MECH006', 'SERV030', 'In Progress');
+
+
+-- Inserting example appointments
+INSERT INTO appointment (day, customer, vehicle, serviceType, note) VALUES
+('2024-04-20 09:00:00', '1234567890', '1HGCM82633A004352', 'SERV001', 'Routine oil change'),
+('2024-04-20 11:00:00', '2345678901', '1N4AL11D75C109151', 'SERV003', 'Brake system inspection'),
+('2024-04-21 08:30:00', '9876543210', 'WVWZZZ3CZ8E105784', 'SERV020', 'Suspension problem diagnostics'),
+('2024-04-21 10:30:00', '8765432109', 'JM1GL1VM5J1313568', 'SERV006', 'AC repair'),
+('2024-04-21 13:00:00', '7654321098', '2HKRM3H78HH521689', 'SERV024', 'Emissions test'),
+('2024-04-22 08:00:00', '6543210987', '1FA6P8CF0F5390882', 'SERV007', 'Battery replacement needed'),
+('2024-04-22 10:00:00', '5654321901', '3CZRM3H53GG722462', 'SERV005', 'Routine wheel alignment'),
+('2024-04-22 12:00:00', '4753210986', '5XYKT3A69EG463761', 'SERV016', 'Full car detailing'),
+('2024-04-23 09:30:00', '3852109875', 'JN8AS5MT8CW290164', 'SERV010', 'Complete vehicle inspection'),
+('2024-04-23 11:30:00', '2951098764', '1C4RJFAG0FC678299', 'SERV011', 'Exhaust system repair'),
+('2024-04-23 14:00:00', '2050987653', '4T1BF1FK5HU305782', 'SERV012', 'Spark plug replacement'),
+('2024-04-24 08:15:00', '1159876542', '1G1ZE5ST6GF279630', 'SERV014', 'Transmission fluid change'),
+('2024-04-24 10:45:00', '0258765431', '3FA6P0LU8JR137742', 'SERV015', 'Headlight restoration'),
+('2024-04-24 13:30:00', '9357654320', '19UDE2F32GA001401', 'SERV018', 'Power steering service'),
+('2024-04-25 09:00:00', '8456543219', '2T1BURHEXHC835432', 'SERV022', 'Timing belt replacement'),
+('2024-04-25 11:00:00', '7555432108', 'KL7CJKSB5FB267542', 'SERV023', 'Tire installation'),
+('2024-04-25 14:00:00', '6654321097', '1G1FB1RS5H0120344', 'SERV025', 'Paint touch-up needed'),
+('2024-04-26 08:30:00', '5753210986', '2C3CDZAG9GH136582', 'SERV026', 'Battery testing and replacement'),
+('2024-04-26 10:30:00', '4852109875', '3N1AB7AP2FY312345', 'SERV027', 'CV joint and boot replacement'),
+('2024-04-26 13:00:00', '3951098764', '1FMCU0F78HUC35678', 'SERV030', 'Hybrid battery replacement');

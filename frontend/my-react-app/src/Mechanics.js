@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './Modal.css'; // Import the CSS file for modal styling
 
 const MechanicList = () => {
     const [mechanics, setMechanics] = useState([]);
@@ -7,6 +8,12 @@ const MechanicList = () => {
     const [error, setError] = useState(null);
     const [sortConfig, setSortConfig] = useState({ key: null, direction: '' });
     const [editMechanicData, setEditMechanicData] = useState(null);
+    const [editMechanicError, setEditMechanicError] = useState(null);
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [newMechanicData, setNewMechanicData] = useState({ name: '', email: '', phone: '', id: '' });
+    const [addMechanicError, setAddMechanicError] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchColumn, setSearchColumn] = useState('name');
 
     useEffect(() => {
         const fetchMechanics = async () => {
@@ -46,31 +53,26 @@ const MechanicList = () => {
 
     const saveEditMechanic = async () => {
         const { id, name, email, phone } = editMechanicData;
-        
+        const uri = `http://127.0.0.1:5000/shopWizard/addMechanic?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&phone=${phone}&id=${id}`;
         try {
-            // First, delete the existing mechanic
-            await axios.get(`http://127.0.0.1:5000/shopWizard/removeMechanic?id=${id}`);
-            
-            // Then, add a new mechanic with the modified information
-            const uri = `http://127.0.0.1:5000/shopWizard/addMechanic?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&phone=${phone}&id=${id}`;
-            await axios.get(uri);
-            
-            // Update the mechanics list with the modified mechanic
-            setMechanics(prevMechanics => prevMechanics.map(mech => {
-                if (mech.id === id) return {...editMechanicData};
-                return mech;
-            }));
-            
-            // Close the edit modal
+            // Delete the existing mechanic
+            await deleteMechanic(id);
+
+            // Attempt to add the edited mechanic
+            const response = await axios.get(uri);
+            if (response.data.error) {
+                throw new Error(response.data.error);
+            }
+            setMechanics(prevMechanics => [...prevMechanics, editMechanicData]);
             closeEditModal();
         } catch (err) {
             console.error('Failed to edit mechanic:', err);
+            setEditMechanicError(err.message || 'Failed to edit mechanic. Please try again.');
         }
     };
-
     const requestSort = (key) => {
         let direction = 'ascending';
-        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
+        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascendingF') {
             direction = 'descending';
         }
         setSortConfig({ key, direction });
@@ -93,13 +95,66 @@ const MechanicList = () => {
         return '-'; // Default symbol when not sorted
     };
 
-    if (loading) return <p>Loading mechanics...</p>;
-    if (error) return <p>Error fetching mechanics: {error}</p>;
+    const handleAddModalInputChange = (field, value) => {
+        setNewMechanicData(prevData => ({ ...prevData, [field]: value }));
+    };
+
+    const handleAddMechanic = async () => {
+        const { name, email, phone, id } = newMechanicData;
+        const uri = `http://127.0.0.1:5000/shopWizard/addMechanic?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&phone=${phone}&id=${id}`;
+        try {
+            const response = await axios.get(uri);
+            if (response.data.error) {
+                throw new Error(response.data.error);
+            }
+            setMechanics(prevMechanics => [...prevMechanics, newMechanicData]);
+            setNewMechanicData({ name: '', email: '', phone: '', id: '' });
+            setShowAddModal(false);
+            setAddMechanicError(null);
+        } catch (err) {
+            console.error('Failed to add mechanic:', err);
+            setAddMechanicError(err.message || 'Failed to add mechanic. Please try again.');
+        }
+    };
+
+    const handleSearchInputChange = (value) => {
+        setSearchQuery(value);
+    };
+
+    const handleSearchColumnChange = (column) => {
+        setSearchColumn(column);
+    };
+
+    const clearSearch = () => {
+        setSearchQuery('');
+    };
+
+    const filteredMechanics = mechanics.filter(mechanic => {
+        const searchValue = searchQuery.toLowerCase();
+        const fieldValue = mechanic[searchColumn].toLowerCase();
+        return fieldValue.includes(searchValue);
+    });
 
     return (
         <div style={{ width: '80%', margin: '0 auto', textAlign: 'center' }}>
             <h2>Mechanic List</h2>
-            <div style={{ overflowY: 'auto', maxHeight: '400px' }}>
+            <div>
+                <input
+                    type="text"
+                    placeholder="Search Mechanic..."
+                    value={searchQuery}
+                    onChange={(e) => handleSearchInputChange(e.target.value)}
+                />
+                <select value={searchColumn} onChange={(e) => handleSearchColumnChange(e.target.value)}>
+                    <option value="name">Name</option>
+                    <option value="email">Email</option>
+                    <option value="phone">Phone</option>
+                    <option value="id">ID</option>
+                </select>
+                <button onClick={clearSearch} style={{ marginRight: '5%' }}>Clear</button>
+                <button onClick={() => setShowAddModal(true)}>Add Mechanic</button>
+            </div>
+            <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
                 <table style={{ width: '100%', tableLayout: 'fixed', borderCollapse: 'separate', borderSpacing: '0 10px' }}>
                     <thead>
                         <tr>
@@ -111,29 +166,82 @@ const MechanicList = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {mechanics.map(mechanic => (
-                            <tr key={mechanic.id}>
-                                <td>{mechanic.name}</td>
-                                <td>{mechanic.email}</td>
-                                <td>{mechanic.phone}</td>
-                                <td>{mechanic.id}</td>
-                                <td>
-                                    <button onClick={() => openEditModal(mechanic)}>Edit</button>
-                                    <button onClick={() => deleteMechanic(mechanic.id)}>Delete</button>
-                                </td>
-                            </tr>
-                        ))}
+                        {loading ? (
+                            <tr><td colSpan="5">Loading...</td></tr>
+                        ) : (
+                            filteredMechanics.map((mechanic, index) => (
+                                <tr key={index}>
+                                    <td>{mechanic.name}</td>
+                                    <td>{mechanic.email}</td>
+                                    <td>{mechanic.phone}</td>
+                                    <td>{mechanic.id}</td>
+                                    <td>
+                                        <button onClick={() => openEditModal(mechanic)}>Edit</button>
+                                        <button onClick={() => deleteMechanic(mechanic.id)}>Delete</button>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>
+            {error && <p>Error: {error}</p>}
+            {showAddModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2>Add Mechanic</h2>
+                        <div>
+                            <label>Name: </label>
+                            <input type="text" value={newMechanicData.name} onChange={(e) => handleAddModalInputChange('name', e.target.value)} />
+                        </div>
+                        <div>
+                            <label>Email: </label>
+                            <input type="email" value={newMechanicData.email} onChange={(e) => handleAddModalInputChange('email', e.target.value)} />
+                        </div>
+                        <div>
+                            <label>Phone: </label>
+                            <input type="tel" value={newMechanicData.phone} onChange={(e) => handleAddModalInputChange('phone', e.target.value)} />
+                        </div>
+                        <div>
+                            <label>ID: </label>
+                            <input type="text" value={newMechanicData.id} onChange={(e) => handleAddModalInputChange('id', e.target.value)} />
+                        </div>
+                        <div>
+                            {addMechanicError && <p className="error-message">{addMechanicError}</p>}
+                        </div>
+                        <div className="button-container">
+                            <button onClick={handleAddMechanic}>Add Mechanic</button>
+                            <button onClick={() => setShowAddModal(false)}>Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {editMechanicData && (
-                <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: 'white', padding: '20px', zIndex: 1000 }}>
-                    <h4>Edit Mechanic</h4>
-                    <input type="text" value={editMechanicData.name} onChange={(e) => handleEditChange('name', e.target.value)} /><br />
-                    <input type="email" value={editMechanicData.email} onChange={(e) => handleEditChange('email', e.target.value)} /><br />
-                    <input type="text" value={editMechanicData.phone} onChange={(e) => handleEditChange('phone', e.target.value)} /><br />
-                    <button onClick={saveEditMechanic}>Save</button>
-                    <button onClick={closeEditModal}>Cancel</button>
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2>Edit Mechanic</h2>
+                        <div>
+                            <label>Name: </label>
+                            <input type="text" value={editMechanicData.name} onChange={(e) => handleEditChange('name', e.target.value)} />
+                        </div>
+                        <div>
+                            <label>Email: </label>
+                            <input type="email" value={editMechanicData.email} onChange={(e) => handleEditChange('email', e.target.value)} />
+                        </div>
+                        <div>
+                            <label>Phone: </label>
+                            <input type="tel" value={editMechanicData.phone} onChange={(e) => handleEditChange('phone', e.target.value)} />
+                        </div>
+                        <div>
+                            {editMechanicError && <p className="error-message">{editMechanicError}</p>}
+                        </div>
+                        <div className='button-container'>
+                            <button onClick={saveEditMechanic}>Save</button>
+                            <button onClick={closeEditModal}>Cancel</button>
+                        </div>
+
+                    </div>
                 </div>
             )}
         </div>

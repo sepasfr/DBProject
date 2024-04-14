@@ -116,7 +116,29 @@ def removeCustomer():
     ## return success message
     return jsonify({'message': 'Customer removed successfully'}), 200
 
+# Update customer details
+@app.route('/shopWizard/updateCustomer', methods=['PUT'])
+def updateCustomer():
+    phone = request.json.get('phone')
+    name = request.json.get('name')
+    email = request.json.get('email')
 
+    if not all([phone, name]):
+        return jsonify({'error': 'Missing required fields: phone or name'}), 400
+
+    ## execute SQL query to update customer
+    try:
+        query = "UPDATE customer SET name = %s, email = %s WHERE phone = %s"
+        cursor.execute(query, (name, email, phone))
+    except mysql.connector.Error as e:
+        error_message = "Error updating customer: " + str(e)
+        return jsonify({'error': error_message})
+    
+    ## commit changes
+    conn.commit()
+
+    ##return success message
+    return jsonify({'message': 'Customer updated successfully'}), 200
 
 
 
@@ -214,7 +236,26 @@ def removeMechanic():
     ## return success message
     return jsonify({'message': 'Mechanic removed successfully'}), 200
 
+# Update mechanic details
+@app.route('/shopWizard/updateMechanic', methods=['PUT'])
+def updateMechanic():
+    id = request.json.get('id')
+    name = request.json.get('name')
+    email = request.json.get('email')
+    phone = request.json.get('phone')
 
+    if not all([id, name, phone]):
+        return jsonify({'error': 'Missing required fields: id, name, or phone'}), 400
+
+    try:
+        query = "UPDATE mechanic SET name = %s, email = %s, phone = %s WHERE id = %s"
+        cursor.execute(query, (name, email, phone, id))
+    except mysql.connector.Error as e:
+        error_message = "Error updating mechanic: " + str(e)
+        return jsonify({'error': error_message})
+
+    conn.commit()
+    return jsonify({'message': 'Mechanic updated successfully'}), 200
 
 
 
@@ -313,6 +354,29 @@ def removeVehicle():
     ## return success message
     return jsonify({'message': 'vehicle removed successfully'}), 200
 
+# Update vehicle details
+@app.route('/shopWizard/updateVehicle', methods=['PUT'])
+def updateVehicle():
+    vin = request.json.get('vin')
+    owner = request.json.get('owner')
+    make = request.json.get('make')
+    model = request.json.get('model')
+    color = request.json.get('color')
+    year = request.json.get('year')
+
+    if not all([vin, owner, make, model, color, year]):
+        return jsonify({'error': 'Missing required fields: vin, owner, make, model, color, or year'}), 400
+
+    try:
+        query = "UPDATE vehicle SET owner = %s, make = %s, model = %s, color = %s, year = %s WHERE vin = %s"
+        cursor.execute(query, (owner, make, model, color, year, vin))
+    except mysql.connector.Error as e:
+        error_message = "Error updating vehicle: " + str(e)
+        return jsonify({'error': error_message})
+
+    conn.commit()
+    return jsonify({'message': 'Vehicle updated successfully'}), 200
+
 
 
 
@@ -407,6 +471,219 @@ def removeServiceType():
 
     ## return success message
     return jsonify({'message': 'service type removed successfully'}), 200
+
+# Update service type details
+@app.route('/shopWizard/updateServiceType', methods=['PUT'])
+def updateServiceType():
+    id = request.json.get('id')
+    name = request.json.get('name')
+    cost = request.json.get('cost')
+    duration = request.json.get('duration')
+
+    if not all([id, name, cost, duration]):
+        return jsonify({'error': 'Missing required fields: id, name, cost, or duration'}), 400
+
+    try:
+        query = "UPDATE serviceType SET name = %s, cost = %s, duration = %s WHERE id = %s"
+        cursor.execute(query, (name, cost, duration, id))
+    except mysql.connector.Error as e:
+        error_message = "Error updating service type: " + str(e)
+        return jsonify({'error': error_message})
+
+    conn.commit()
+    return jsonify({'message': 'Service type updated successfully'}), 200
+
+
+
+
+## --------------- get, add, and remove for Job table ------------------
+## example request: http://127.0.0.1:5000/shopWizard/getJob?id=1001
+@app.route('/shopWizard/getJob', methods=['GET'])
+def getJob():
+    job_id = request.args.get('id')
+    if not job_id:
+        return jsonify({'error': 'Missing required parameter: id'}), 400
+
+    query = "SELECT * FROM job WHERE id = %s"
+    cursor.execute(query, (job_id,))
+    job = cursor.fetchone()
+
+    if job:
+        columns = [column[0] for column in cursor.description]
+        return jsonify(dict(zip(columns, job))), 200
+    else:
+        return jsonify({'message': 'Job not found'}), 404
+
+## example request: http://127.0.0.1:5000/shopWizard/getAllJobs
+@app.route('/shopWizard/getAllJobs', methods=['GET'])
+def getAllJobs():
+    query = "SELECT * FROM job"
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    jobs = []
+
+    if rows:
+        columns = [column[0] for column in cursor.description]
+        for row in rows:
+            jobs.append(dict(zip(columns, row)))
+        return jsonify(jobs), 200
+    else:
+        return jsonify({'message': 'No jobs found'}), 404
+
+## example request: http://127.0.0.1:5000/shopWizard/addJob
+@app.route('/shopWizard/addJob', methods=['POST'])
+def addJob():
+    vehicle = request.json.get('vehicle')
+    mechanic = request.json.get('mechanic')
+    serviceType = request.json.get('serviceType')
+    status = request.json.get('status')
+
+    if not all([vehicle, serviceType]):
+        return jsonify({'error': 'Missing required fields'}), 400
+
+    query = "INSERT INTO job (vehicle, mechanic, serviceType, status) VALUES (%s, %s, %s, %s)"
+    try:
+        cursor.execute(query, (vehicle, mechanic, serviceType, status))
+        conn.commit()
+        return jsonify({'message': 'Job added successfully'}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+## example request: http://127.0.0.1:5000/shopWizard/deleteJob?id=1001
+@app.route('/shopWizard/deleteJob', methods=['DELETE'])
+def deleteJob():
+    job_id = request.args.get('id')
+    if not job_id:
+        return jsonify({'error': 'Missing required parameter: id'}), 400
+
+    query = "DELETE FROM job WHERE id = %s"
+    try:
+        cursor.execute(query, (job_id,))
+        conn.commit()
+        return jsonify({'message': 'Job deleted successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Update job details
+@app.route('/shopWizard/updateJob', methods=['PUT'])
+def updateJob():
+    id = request.json.get('id')
+    vehicle = request.json.get('vehicle')
+    mechanic = request.json.get('mechanic')
+    serviceType = request.json.get('serviceType')
+    status = request.json.get('status')
+
+    if not all([id, vehicle, serviceType]):
+        return jsonify({'error': 'Missing required fields: id, vehicle, or serviceType'}), 400
+
+    try:
+        query = "UPDATE job SET vehicle = %s, mechanic = %s, serviceType = %s, status = %s WHERE id = %s"
+        cursor.execute(query, (vehicle, mechanic, serviceType, status, id))
+    except mysql.connector.Error as e:
+        error_message = "Error updating job: " + str(e)
+        return jsonify({'error': error_message})
+
+    conn.commit()
+    return jsonify({'message': 'Job updated successfully'}), 200
+
+
+
+
+
+
+
+## --------------- get, add, and remove for Appointment table ------------------
+## example request: http://127.0.0.1:5000/shopWizard/getAppointment?id=2001
+@app.route('/shopWizard/getAppointment', methods=['GET'])
+def getAppointment():
+    appointment_id = request.args.get('id')
+    if not appointment_id:
+        return jsonify({'error': 'Missing required parameter: id'}), 400
+
+    query = "SELECT * FROM appointment WHERE id = %s"
+    cursor.execute(query, (appointment_id,))
+    appointment = cursor.fetchone()
+
+    if appointment:
+        columns = [column[0] for column in cursor.description]
+        return jsonify(dict(zip(columns, appointment))), 200
+    else:
+        return jsonify({'message': 'Appointment not found'}), 404
+
+## example request: http://127.0.0.1:5000/shopWizard/getAllAppointments
+@app.route('/shopWizard/getAllAppointments', methods=['GET'])
+def getAllAppointments():
+    query = "SELECT * FROM appointment"
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    appointments = []
+
+    if rows:
+        columns = [column[0] for column in cursor.description]
+        for row in rows:
+            appointments.append(dict(zip(columns, row)))
+        return jsonify(appointments), 200
+    else:
+        return jsonify({'message': 'No appointments found'}), 404
+
+## example request: http://127.0.0.1:5000/shopWizard/addAppointment
+@app.route('/shopWizard/addAppointment', methods=['POST'])
+def addAppointment():
+    day = request.json.get('day')
+    customer = request.json.get('customer')
+    vehicle = request.json.get('vehicle')
+    serviceType = request.json.get('serviceType')
+    note = request.json.get('note')
+
+    if not all([day, customer, vehicle, serviceType]):
+        return jsonify({'error': 'Missing required fields'}), 400
+
+    query = "INSERT INTO appointment (day, customer, vehicle, serviceType, note) VALUES (%s, %s, %s, %s, %s)"
+    try:
+        cursor.execute(query, (day, customer, vehicle, serviceType, note))
+        conn.commit()
+        return jsonify({'message': 'Appointment added successfully'}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+## example request: http://127.0.0.1:5000/shopWizard/deleteAppointment?id=2001
+@app.route('/shopWizard/deleteAppointment', methods=['DELETE'])
+def deleteAppointment():
+    appointment_id = request.args.get('id')
+    if not appointment_id:
+        return jsonify({'error': 'Missing required parameter: id'}), 400
+
+    query = "DELETE FROM appointment WHERE id = %s"
+    try:
+        cursor.execute(query, (appointment_id,))
+        conn.commit()
+        return jsonify({'message': 'Appointment deleted successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Update appointment details
+@app.route('/shopWizard/updateAppointment', methods=['PUT'])
+def updateAppointment():
+    id = request.json.get('id')
+    day = request.json.get('day')
+    customer = request.json.get('customer')
+    vehicle = request.json.get('vehicle')
+    serviceType = request.json.get('serviceType')
+    note = request.json.get('note')
+
+    if not all([id, day, customer, vehicle, serviceType]):
+        return jsonify({'error': 'Missing required fields: id, day, customer, vehicle, or serviceType'}), 400
+
+    try:
+        query = "UPDATE appointment SET day = %s, customer = %s, vehicle = %s, serviceType = %s, note = %s WHERE id = %s"
+        cursor.execute(query, (day, customer, vehicle, serviceType, note, id))
+    except mysql.connector.Error as e:
+        error_message = "Error updating appointment: " + str(e)
+        return jsonify({'error': error_message})
+
+    conn.commit()
+    return jsonify({'message': 'Appointment updated successfully'}), 200
+
 
 
 

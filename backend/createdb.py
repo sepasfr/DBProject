@@ -14,7 +14,7 @@ sql_file_location = "backend/database.sql"
 conn = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="St@llions123"
+    password="Hello2002"
 )
 
 ## create cursor object to execute SQL queries

@@ -69,7 +69,7 @@ const CustomerList = () => {
             if (response.data.error) {
                 throw new Error(response.data.error);
             }
-            setCustomers(prevCustomers => prevCustomers.map(customer => customer.phone === originalPhone ? editCustomerData : customer));
+            setCustomers(prevCustomers => prevCustomers.map(customer => customer.phone === originalPhone ? { ...customer, name, email, phone } : customer));
             closeEditModal();
         } catch (err) {
             console.error('Failed to edit customer:', err);
@@ -93,6 +93,13 @@ const CustomerList = () => {
             return 0;
         });
         setCustomers(sortedCustomers);
+    };
+
+    const getSortDirectionSymbol = (name) => {
+        if (sortConfig.key === name) {
+            return sortConfig.direction === 'ascending' ? '⮝' : '⮟';
+        }
+        return '-'; // Default symbol when not sorted
     };
 
     const handleAddModalInputChange = (field, value) => {
@@ -160,9 +167,15 @@ const CustomerList = () => {
                 <table style={{ width: '100%', tableLayout: 'fixed', borderCollapse: 'separate', borderSpacing: '0 10px' }}>
                     <thead>
                         <tr>
-                            <th onClick={() => requestSort('name')} style={{ cursor: 'pointer' }}>Name {sortConfig.key === 'name' && (sortConfig.direction === 'ascending' ? '⮝' : '⮟')}</th>
-                            <th onClick={() => requestSort('email')} style={{ cursor: 'pointer' }}>Email {sortConfig.key === 'email' && (sortConfig.direction === 'ascending' ? '⮝' : '⮟')}</th>
-                            <th onClick={() => requestSort('phone')} style={{ cursor: 'pointer' }}>Phone {sortConfig.key === 'phone' && (sortConfig.direction === 'ascending' ? '⮝' : '⮟')}</th>
+                            <th onClick={() => requestSort('name')} style={{ cursor: 'pointer' }}>
+                                Name {getSortDirectionSymbol('name')}
+                            </th>
+                            <th onClick={() => requestSort('email')} style={{ cursor: 'pointer' }}>
+                                Email {getSortDirectionSymbol('email')}
+                            </th>
+                            <th onClick={() => requestSort('phone')} style={{ cursor: 'pointer' }}>
+                                Phone {getSortDirectionSymbol('phone')}
+                            </th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -172,9 +185,9 @@ const CustomerList = () => {
                         ) : (
                             filteredCustomers.map((customer, index) => (
                                 <tr key={index}>
-                                    <td>{customer.name}</td>
-                                    <td>{customer.email}</td>
-                                    <td>{customer.phone}</td>
+                                    <td className="ellipsis">{customer.name}</td>
+                                    <td className="ellipsis">{customer.email}</td>
+                                    <td className="ellipsis">{customer.phone}</td>
                                     <td>
                                         <button onClick={() => openEditModal(customer)}>Edit</button>
                                         <button onClick={() => confirmDeleteCustomer(customer.phone)}>Delete</button>

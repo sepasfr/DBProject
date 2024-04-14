@@ -66,3 +66,17 @@
 .modal-content button:hover {
     background-color: #0056b3; /* Darker blue on hover */
 }
+
+.ellipsis {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    max-width: 150px;
+}
+
+.ellipsis:hover {
+    overflow: visible;
+    white-space: normal;
+    background-color: #f0f0f0;
+}

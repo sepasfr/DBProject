@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './Modal.css'; // Import the CSS file for modal styling
+import './Modal.css'; // Ensure this CSS file includes the .ellipsis styles
 
 const MechanicList = () => {
     const [mechanics, setMechanics] = useState([]);
@@ -40,13 +40,13 @@ const MechanicList = () => {
     };
 
     const confirmDeleteMechanic = (id) => {
-        if (window.confirm("Are you sure you want to delete this customer?")) {
+        if (window.confirm("Are you sure you want to delete this mechanic?")) {
             deleteMechanic(id);
         }
     };
 
     const openEditModal = (mechanic) => {
-        setEditMechanicData({ ...mechanic, oldId: mechanic.id });  // Capture the original ID to use in case of updates
+        setEditMechanicData({ ...mechanic, oldId: mechanic.id });
     };
 
     const closeEditModal = () => {
@@ -94,6 +94,13 @@ const MechanicList = () => {
             return 0;
         });
         setMechanics(sortedMechanics);
+    };
+
+    const getSortDirectionSymbol = (name) => {
+        if (sortConfig.key === name) {
+            return sortConfig.direction === 'ascending' ? '⮝' : '⮟';
+        }
+        return '-'; // Default symbol when not sorted
     };
 
     const handleAddModalInputChange = (field, value) => {
@@ -163,10 +170,18 @@ const MechanicList = () => {
                 <table style={{ width: '100%', tableLayout: 'fixed', borderCollapse: 'separate', borderSpacing: '0 10px' }}>
                     <thead>
                         <tr>
-                            <th onClick={() => requestSort('name')} style={{ cursor: 'pointer' }}>Name</th>
-                            <th onClick={() => requestSort('email')} style={{ cursor: 'pointer' }}>Email</th>
-                            <th onClick={() => requestSort('phone')} style={{ cursor: 'pointer' }}>Phone</th>
-                            <th onClick={() => requestSort('id')} style={{ cursor: 'pointer' }}>ID</th>
+                            <th onClick={() => requestSort('name')} style={{ cursor: 'pointer' }}>
+                                Name {getSortDirectionSymbol('name')}
+                            </th>
+                            <th onClick={() => requestSort('email')} style={{ cursor: 'pointer' }}>
+                                Email {getSortDirectionSymbol('email')}
+                            </th>
+                            <th onClick={() => requestSort('phone')} style={{ cursor: 'pointer' }}>
+                                Phone {getSortDirectionSymbol('phone')}
+                            </th>
+                            <th onClick={() => requestSort('id')} style={{ cursor: 'pointer' }}>
+                                ID {getSortDirectionSymbol('id')}
+                            </th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -176,10 +191,10 @@ const MechanicList = () => {
                         ) : (
                             filteredMechanics.map((mechanic, index) => (
                                 <tr key={index}>
-                                    <td>{mechanic.name}</td>
-                                    <td>{mechanic.email}</td>
-                                    <td>{mechanic.phone}</td>
-                                    <td>{mechanic.id}</td>
+                                    <td className="ellipsis">{mechanic.name}</td>
+                                    <td className="ellipsis">{mechanic.email}</td>
+                                    <td className="ellipsis">{mechanic.phone}</td>
+                                    <td className="ellipsis">{mechanic.id}</td>
                                     <td>
                                         <button onClick={() => openEditModal(mechanic)}>Edit</button>
                                         <button onClick={() => confirmDeleteMechanic(mechanic.id)}>Delete</button>

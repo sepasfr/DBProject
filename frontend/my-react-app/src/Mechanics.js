@@ -32,15 +32,21 @@ const MechanicList = () => {
 
     const deleteMechanic = async (id) => {
         try {
-            await axios.get(`http://127.0.0.1:5000/shopWizard/removeMechanic?id=${id}`);
+            await axios.delete(`http://127.0.0.1:5000/shopWizard/removeMechanic?id=${id}`);
             setMechanics(prevMechanics => prevMechanics.filter(mechanic => mechanic.id !== id));
         } catch (err) {
             console.error('Failed to delete mechanic:', err);
         }
     };
 
+    const confirmDeleteMechanic = (id) => {
+        if (window.confirm("Are you sure you want to delete this customer?")) {
+            deleteMechanic(id);
+        }
+    };
+
     const openEditModal = (mechanic) => {
-        setEditMechanicData(mechanic);
+        setEditMechanicData({ ...mechanic, oldId: mechanic.id });  // Capture the original ID to use in case of updates
     };
 
     const closeEditModal = () => {
@@ -52,27 +58,29 @@ const MechanicList = () => {
     };
 
     const saveEditMechanic = async () => {
-        const { id, name, email, phone } = editMechanicData;
-        const uri = `http://127.0.0.1:5000/shopWizard/addMechanic?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&phone=${phone}&id=${id}`;
+        const { oldId, id, name, email, phone } = editMechanicData;
         try {
-            // Delete the existing mechanic
-            await deleteMechanic(id);
-
-            // Attempt to add the edited mechanic
-            const response = await axios.get(uri);
+            const response = await axios.put('http://127.0.0.1:5000/shopWizard/updateMechanic', {
+                old_id: oldId,
+                new_id: id,
+                name: name,
+                email: email,
+                phone: phone
+            });
             if (response.data.error) {
                 throw new Error(response.data.error);
             }
-            setMechanics(prevMechanics => [...prevMechanics, editMechanicData]);
+            setMechanics(prevMechanics => prevMechanics.map(mechanic => mechanic.id === oldId ? { ...mechanic, id, name, email, phone } : mechanic));
             closeEditModal();
         } catch (err) {
             console.error('Failed to edit mechanic:', err);
             setEditMechanicError(err.message || 'Failed to edit mechanic. Please try again.');
         }
     };
+
     const requestSort = (key) => {
         let direction = 'ascending';
-        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascendingF') {
+        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
             direction = 'descending';
         }
         setSortConfig({ key, direction });
@@ -88,26 +96,23 @@ const MechanicList = () => {
         setMechanics(sortedMechanics);
     };
 
-    const getSortDirectionSymbol = (name) => {
-        if (sortConfig.key === name) {
-            return sortConfig.direction === 'ascending' ? '⮝' : '⮟';
-        }
-        return '-'; // Default symbol when not sorted
-    };
-
     const handleAddModalInputChange = (field, value) => {
         setNewMechanicData(prevData => ({ ...prevData, [field]: value }));
     };
 
     const handleAddMechanic = async () => {
         const { name, email, phone, id } = newMechanicData;
-        const uri = `http://127.0.0.1:5000/shopWizard/addMechanic?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&phone=${phone}&id=${id}`;
         try {
-            const response = await axios.get(uri);
+            const response = await axios.post('http://127.0.0.1:5000/shopWizard/addMechanic', {
+                name: name,
+                email: email,
+                phone: phone,
+                id: id
+            });
             if (response.data.error) {
                 throw new Error(response.data.error);
             }
-            setMechanics(prevMechanics => [...prevMechanics, newMechanicData]);
+            setMechanics(prevMechanics => [...prevMechanics, { name, email, phone, id }]);
             setNewMechanicData({ name: '', email: '', phone: '', id: '' });
             setShowAddModal(false);
             setAddMechanicError(null);
@@ -158,10 +163,10 @@ const MechanicList = () => {
                 <table style={{ width: '100%', tableLayout: 'fixed', borderCollapse: 'separate', borderSpacing: '0 10px' }}>
                     <thead>
                         <tr>
-                            <th onClick={() => requestSort('name')} style={{ cursor: 'pointer' }}>Name {getSortDirectionSymbol('name')}</th>
-                            <th onClick={() => requestSort('email')} style={{ cursor: 'pointer' }}>Email {getSortDirectionSymbol('email')}</th>
-                            <th onClick={() => requestSort('phone')} style={{ cursor: 'pointer' }}>Phone {getSortDirectionSymbol('phone')}</th>
-                            <th onClick={() => requestSort('id')} style={{ cursor: 'pointer' }}>ID {getSortDirectionSymbol('id')}</th>
+                            <th onClick={() => requestSort('name')} style={{ cursor: 'pointer' }}>Name</th>
+                            <th onClick={() => requestSort('email')} style={{ cursor: 'pointer' }}>Email</th>
+                            <th onClick={() => requestSort('phone')} style={{ cursor: 'pointer' }}>Phone</th>
+                            <th onClick={() => requestSort('id')} style={{ cursor: 'pointer' }}>ID</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -177,7 +182,7 @@ const MechanicList = () => {
                                     <td>{mechanic.id}</td>
                                     <td>
                                         <button onClick={() => openEditModal(mechanic)}>Edit</button>
-                                        <button onClick={() => deleteMechanic(mechanic.id)}>Delete</button>
+                                        <button onClick={() => confirmDeleteMechanic(mechanic.id)}>Delete</button>
                                     </td>
                                 </tr>
                             ))
@@ -191,19 +196,19 @@ const MechanicList = () => {
                     <div className="modal-content">
                         <h2>Add Mechanic</h2>
                         <div>
-                            <label>Name: </label>
+                            <label>Name:</label>
                             <input type="text" value={newMechanicData.name} onChange={(e) => handleAddModalInputChange('name', e.target.value)} />
                         </div>
                         <div>
-                            <label>Email: </label>
+                            <label>Email:</label>
                             <input type="email" value={newMechanicData.email} onChange={(e) => handleAddModalInputChange('email', e.target.value)} />
                         </div>
                         <div>
-                            <label>Phone: </label>
+                            <label>Phone:</label>
                             <input type="tel" value={newMechanicData.phone} onChange={(e) => handleAddModalInputChange('phone', e.target.value)} />
                         </div>
                         <div>
-                            <label>ID: </label>
+                            <label>ID:</label>
                             <input type="text" value={newMechanicData.id} onChange={(e) => handleAddModalInputChange('id', e.target.value)} />
                         </div>
                         <div>
@@ -216,31 +221,31 @@ const MechanicList = () => {
                     </div>
                 </div>
             )}
-
             {editMechanicData && (
                 <div className="modal-overlay">
                     <div className="modal-content">
                         <h2>Edit Mechanic</h2>
                         <div>
-                            <label>Name: </label>
+                            <label>ID:</label>
+                            <input type="text" value={editMechanicData.id} onChange={(e) => handleEditChange('id', e.target.value)} />
+                        </div>
+                        <div>
+                            <label>Name:</label>
                             <input type="text" value={editMechanicData.name} onChange={(e) => handleEditChange('name', e.target.value)} />
                         </div>
                         <div>
-                            <label>Email: </label>
+                            <label>Email:</label>
                             <input type="email" value={editMechanicData.email} onChange={(e) => handleEditChange('email', e.target.value)} />
                         </div>
                         <div>
-                            <label>Phone: </label>
+                            <label>Phone:</label>
                             <input type="tel" value={editMechanicData.phone} onChange={(e) => handleEditChange('phone', e.target.value)} />
                         </div>
-                        <div>
-                            {editMechanicError && <p className="error-message">{editMechanicError}</p>}
-                        </div>
-                        <div className='button-container'>
+                        <div className="button-container">
                             <button onClick={saveEditMechanic}>Save</button>
                             <button onClick={closeEditModal}>Cancel</button>
                         </div>
-
+                        {editMechanicError && <p className="error-message">{editMechanicError}</p>}
                     </div>
                 </div>
             )}

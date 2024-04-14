@@ -24,7 +24,7 @@ CREATE TABLE vehicle (
     model VARCHAR(225) NOT NULL,
     color VARCHAR(225) NOT NULL,
     year INT(4) NOT NULL,
-    FOREIGN KEY (owner) REFERENCES customer(phone) ON UPDATE CASCADE
+    FOREIGN KEY (owner) REFERENCES customer(phone) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- Represents each type of service that can be done
@@ -43,9 +43,9 @@ CREATE TABLE job (
     mechanic VARCHAR(20) DEFAULT NULL,
     serviceType VARCHAR(20) NOT NULL,
     status VARCHAR(225) DEFAULT NULL,
-    FOREIGN KEY (vehicle) REFERENCES vehicle(vin) ON UPDATE CASCADE,
-    FOREIGN KEY (mechanic) REFERENCES mechanic(id) ON UPDATE CASCADE,
-    FOREIGN KEY (serviceType) REFERENCES serviceType(id) ON UPDATE CASCADE
+    FOREIGN KEY (vehicle) REFERENCES vehicle(vin) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (mechanic) REFERENCES mechanic(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (serviceType) REFERENCES serviceType(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- Represents an individual appointment
@@ -55,10 +55,11 @@ CREATE TABLE appointment (
     vehicle VARCHAR(20) NOT NULL,
     serviceType VARCHAR(20) NOT NULL,
     note TEXT DEFAULT NULL,
-    FOREIGN KEY (customer) REFERENCES customer(phone) ON UPDATE CASCADE,
-    FOREIGN KEY (vehicle) REFERENCES vehicle(vin) ON UPDATE CASCADE,
-    FOREIGN KEY (serviceType) REFERENCES serviceType(id) ON UPDATE CASCADE
+    FOREIGN KEY (customer) REFERENCES customer(phone) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (vehicle) REFERENCES vehicle(vin) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (serviceType) REFERENCES serviceType(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
+
 
 
 

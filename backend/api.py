@@ -64,12 +64,12 @@ def getAllCustomers():
 
 ## example request: http://127.0.0.1:5000/shopWizard/addCustomer?name=John%20Doe&email=johndoe123@gmail.com&phone=1234567890
 ## '%20' is the special char for a space, use '&' between params
-@app.route('/shopWizard/addCustomer', methods = ['get'])
+@app.route('/shopWizard/addCustomer', methods = ['post'])
 def addCustomer():
     ## extract customer info from data
-    name = request.args.get('name')
-    email = request.args.get('email')
-    phone = request.args.get('phone')
+    name = request.json.get('name')
+    email = request.json.get('email')
+    phone = request.json.get('phone')
 
     ## check if all fields are present
     if not all([name, phone]):
@@ -93,7 +93,7 @@ def addCustomer():
     return jsonify({'message': 'Customer added successfully'}), 200
 
 ## example request: http://127.0.0.1:5000/shopWizard/removeCustomer?phone=1234567890
-@app.route('/shopWizard/removeCustomer', methods = ['get'])
+@app.route('/shopWizard/removeCustomer', methods = ['delete'])
 def removeCustomer():
     ## extract input
     phone = request.args.get('phone')
@@ -119,26 +119,30 @@ def removeCustomer():
 # Update customer details
 @app.route('/shopWizard/updateCustomer', methods=['PUT'])
 def updateCustomer():
-    phone = request.json.get('phone')
+    old_phone = request.json.get('old_phone')  # Assuming you provide the old phone number
+    new_phone = request.json.get('new_phone')
     name = request.json.get('name')
     email = request.json.get('email')
 
-    if not all([phone, name]):
-        return jsonify({'error': 'Missing required fields: phone or name'}), 400
+    if not all([old_phone, new_phone, name]):
+        return jsonify({'error': 'Missing required fields: old_phone, new_phone, or name'}), 400
 
-    ## execute SQL query to update customer
     try:
-        query = "UPDATE customer SET name = %s, email = %s WHERE phone = %s"
-        cursor.execute(query, (name, email, phone))
+        # Check if the new phone number already exists
+        cursor.execute("SELECT * FROM customer WHERE phone = %s", (new_phone,))
+        existing_customer = cursor.fetchone()
+        if existing_customer:
+            return jsonify({'error': 'A customer with the new phone number already exists'}), 400
+
+        # Update customer record
+        query = "UPDATE customer SET phone = %s, name = %s, email = %s WHERE phone = %s"
+        cursor.execute(query, (new_phone, name, email, old_phone))
+        conn.commit()
+        return jsonify({'message': 'Customer updated successfully'}), 200
+
     except mysql.connector.Error as e:
         error_message = "Error updating customer: " + str(e)
-        return jsonify({'error': error_message})
-    
-    ## commit changes
-    conn.commit()
-
-    ##return success message
-    return jsonify({'message': 'Customer updated successfully'}), 200
+        return jsonify({'error': error_message}), 500
 
 
 
@@ -183,13 +187,13 @@ def getAllMechanics():
 
 ## example request: http://127.0.0.1:5000/shopWizard/addMechanic?name=Kelly%20Amber&email=kellyamber69@gmail.com&phone=1111111111&id=105
 ## '%20' is the special char for a space, use '&' between params
-@app.route('/shopWizard/addMechanic', methods = ['get'])
+@app.route('/shopWizard/addMechanic', methods = ['post'])
 def addMechanic():
     ## extract mechanic info from data
-    name = request.args.get('name')
-    email = request.args.get('email')
-    phone = request.args.get('phone')
-    id = request.args.get('id')
+    name = request.json.get('name')
+    email = request.json.get('email')
+    phone = request.json.get('phone')
+    id = request.json.get('id')
 
     ## check if all fields are present
     if not all([name, phone, id]):
@@ -213,10 +217,10 @@ def addMechanic():
     return jsonify({'message': 'Mechanic added successfully'}), 200
 
 ## example request: http://127.0.0.1:5000/shopWizard/removeMechanic?id=105
-@app.route('/shopWizard/removeMechanic', methods = ['get'])
+@app.route('/shopWizard/removeMechanic', methods = ['delete'])
 def removeMechanic():
     ## extract input
-    id = str(request.args.get('id'))
+    id = request.args.get('id')
 
     # Check if id number is provided
     if not id:
@@ -239,24 +243,29 @@ def removeMechanic():
 # Update mechanic details
 @app.route('/shopWizard/updateMechanic', methods=['PUT'])
 def updateMechanic():
-    id = request.json.get('id')
+    old_id = request.json.get('old_id')
+    new_id = request.json.get('new_id')
     name = request.json.get('name')
     email = request.json.get('email')
     phone = request.json.get('phone')
 
-    if not all([id, name, phone]):
-        return jsonify({'error': 'Missing required fields: id, name, or phone'}), 400
+    if not all([old_id, new_id, name, email, phone]):
+        return jsonify({'error': 'Missing required fields'}), 400
 
     try:
-        query = "UPDATE mechanic SET name = %s, email = %s, phone = %s WHERE id = %s"
-        cursor.execute(query, (name, email, phone, id))
+        # Check if the new ID already exists and is not the old ID
+        cursor.execute("SELECT * FROM mechanic WHERE id = %s AND id != %s", (new_id, old_id))
+        if cursor.fetchone():
+            return jsonify({'error': 'A mechanic with the new ID already exists'}), 400
+
+        # Update mechanic record
+        query = "UPDATE mechanic SET id = %s, name = %s, email = %s, phone = %s WHERE id = %s"
+        cursor.execute(query, (new_id, name, email, phone, old_id))
+        conn.commit()
+        return jsonify({'message': 'Mechanic updated successfully'}), 200
+
     except mysql.connector.Error as e:
-        error_message = "Error updating mechanic: " + str(e)
-        return jsonify({'error': error_message})
-
-    conn.commit()
-    return jsonify({'message': 'Mechanic updated successfully'}), 200
-
+        return jsonify({'error': f"Error updating mechanic: {str(e)}"}), 500
 
 
 ## ---------------- get, add, and remove for VEHICLE table ---------------------
@@ -300,7 +309,7 @@ def getAllVehicles():
 
 ## example request: http://127.0.0.1:5000/shopWizard/addVehicle?vin=2C4RDGCG0ER295952&owner=1234567890&make=Dodge&model=Grand%20Caravan&color=blue&year=2014
 ## '%20' is the special char for a space, use '&' between params
-@app.route('/shopWizard/addVehicle', methods = ['get'])
+@app.route('/shopWizard/addVehicle', methods = ['post'])
 def addVehicle():
     ## extract vehicle info from data
     vin = request.args.get('vin')
@@ -331,7 +340,7 @@ def addVehicle():
     return jsonify({'message': 'vehicle added successfully'}), 200
 
 ## example request: http://127.0.0.1:5000/shopWizard/removeVehicle?vin=2C4RDGCG0ER295952
-@app.route('/shopWizard/removeVehicle', methods = ['get'])
+@app.route('/shopWizard/removeVehicle', methods = ['delete'])
 def removeVehicle():
     ## extract input
     vin = request.args.get('vin')
@@ -422,13 +431,13 @@ def getAllServiceTypes():
 
 ## example request: http://127.0.0.1:5000/shopWizard/addServiceType?id=101&name=Oil%20Change&cost=50&duration=0.5
 ## '%20' is the special char for a space, use '&' between params
-@app.route('/shopWizard/addServiceType', methods = ['get'])
+@app.route('/shopWizard/addServiceType', methods = ['post'])
 def addServiceType():
     ## extract service type info from data
-    id = request.args.get('id')
-    name = request.args.get('name')
-    cost = request.args.get('cost')
-    duration = request.args.get('duration')
+    id = request.json_module.get('id')
+    name = request.json.get('name')
+    cost = request.json.get('cost')
+    duration = request.json.get('duration')
 
     ## check if all fields are present
     if not all([id, name, cost, duration]):

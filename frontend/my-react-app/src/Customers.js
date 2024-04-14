@@ -32,13 +32,18 @@ const CustomerList = () => {
 
     const deleteCustomer = async (phone) => {
         try {
-            await axios.get(`http://127.0.0.1:5000/shopWizard/removeCustomer?phone=${phone}`);
+            await axios.delete(`http://127.0.0.1:5000/shopWizard/removeCustomer?phone=${phone}`);
             setCustomers(prevCustomers => prevCustomers.filter(customer => customer.phone !== phone));
         } catch (err) {
             console.error('Failed to delete customer:', err);
         }
     };
 
+    const confirmDeleteCustomer = (phone) => {
+        if (window.confirm("Are you sure you want to delete this customer?")) {
+            deleteCustomer(phone);
+        }
+    };
 
     const openEditModal = (customer) => {
         setEditCustomerData({ ...customer, originalPhone: customer.phone });
@@ -54,36 +59,23 @@ const CustomerList = () => {
 
     const saveEditCustomer = async () => {
         const { name, email, phone, originalPhone } = editCustomerData;
-        const originalCustomerData = { ...editCustomerData }; // Step 1: Save a copy of the original customer data
-
         try {
-            // Attempt to delete the original customer from the database (Step 2)
-            await deleteCustomer(originalPhone);
-
-            // Attempt to add the customer with the updated info (Step 3)
-            const addUri = `http://127.0.0.1:5000/shopWizard/addCustomer?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&phone=${phone}`;
-            const response = await axios.get(addUri);
+            const response = await axios.put('http://127.0.0.1:5000/shopWizard/updateCustomer', {
+                name: name,
+                email: email,
+                new_phone: phone,
+                old_phone: originalPhone
+            });
             if (response.data.error) {
                 throw new Error(response.data.error);
             }
-
-            // Update UI
-            setCustomers(prevCustomers => [...prevCustomers.filter(c => c.phone !== originalPhone), editCustomerData]);
+            setCustomers(prevCustomers => prevCustomers.map(customer => customer.phone === originalPhone ? editCustomerData : customer));
             closeEditModal();
         } catch (err) {
             console.error('Failed to edit customer:', err);
             setEditCustomerError(err.message || 'Failed to edit customer. Please try again.');
-
-            try {
-                // If adding fails, attempt to re-add the original customer to the database (Step 4)
-                await axios.get(`http://127.0.0.1:5000/shopWizard/addCustomer?name=${encodeURIComponent(originalCustomerData.name)}&email=${encodeURIComponent(originalCustomerData.email)}&phone=${originalCustomerData.phone}`);
-            } catch (err) {
-                console.error('Failed to add the original customer back to the database:', err);
-            }
         }
     };
-
-
 
     const requestSort = (key) => {
         let direction = 'ascending';
@@ -109,9 +101,12 @@ const CustomerList = () => {
 
     const handleAddCustomer = async () => {
         const { name, email, phone } = newCustomerData;
-        const uri = `http://127.0.0.1:5000/shopWizard/addCustomer?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&phone=${phone}`;
         try {
-            const response = await axios.get(uri);
+            const response = await axios.post('http://127.0.0.1:5000/shopWizard/addCustomer', {
+                name: name,
+                email: email,
+                phone: phone
+            });
             if (response.data.error) {
                 throw new Error(response.data.error);
             }
@@ -124,9 +119,8 @@ const CustomerList = () => {
             setAddCustomerError(err.message || 'Failed to add customer. Please try again.');
         }
     };
+
     const handleSearchInputChange = (value) => {
-
-
         setSearchQuery(value);
     };
 
@@ -183,7 +177,7 @@ const CustomerList = () => {
                                     <td>{customer.phone}</td>
                                     <td>
                                         <button onClick={() => openEditModal(customer)}>Edit</button>
-                                        <button onClick={() => deleteCustomer(customer.phone)}>Delete</button>
+                                        <button onClick={() => confirmDeleteCustomer(customer.phone)}>Delete</button>
                                     </td>
                                 </tr>
                             ))

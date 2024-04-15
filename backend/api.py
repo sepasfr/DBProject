@@ -265,7 +265,7 @@ def updateMechanic():
         return jsonify({'message': 'Mechanic updated successfully'}), 200
 
     except mysql.connector.Error as e:
-        return jsonify({'error': f"Error updating mechanic: {str(e)}"}), 500
+        return jsonify({'error': "Error updating mechanic: {str(e)}"}), 500
 
 
 ## ---------------- get, add, and remove for VEHICLE table ---------------------
@@ -312,12 +312,12 @@ def getAllVehicles():
 @app.route('/shopWizard/addVehicle', methods = ['post'])
 def addVehicle():
     ## extract vehicle info from data
-    vin = request.args.get('vin')
-    owner = request.args.get('owner')
-    make = request.args.get('make')
-    model = request.args.get('model')
-    color = request.args.get('color')
-    year = request.args.get('year')
+    vin = request.json.get('vin')
+    owner = request.json.get('owner')
+    make = request.json.get('make')
+    model = request.json.get('model')
+    color = request.json.get('color')
+    year = request.json.get('year')
 
     ## check if all fields are present
     if not all([vin, owner, make, model, color, year]):
@@ -366,25 +366,30 @@ def removeVehicle():
 # Update vehicle details
 @app.route('/shopWizard/updateVehicle', methods=['PUT'])
 def updateVehicle():
-    vin = request.json.get('vin')
+    new_vin = request.json.get('new_vin')
+    old_vin = request.json.get('old_vin')
     owner = request.json.get('owner')
     make = request.json.get('make')
     model = request.json.get('model')
     color = request.json.get('color')
     year = request.json.get('year')
 
-    if not all([vin, owner, make, model, color, year]):
+    if not all([old_vin, new_vin, owner, make, model, color, year]):
         return jsonify({'error': 'Missing required fields: vin, owner, make, model, color, or year'}), 400
 
     try:
-        query = "UPDATE vehicle SET owner = %s, make = %s, model = %s, color = %s, year = %s WHERE vin = %s"
-        cursor.execute(query, (owner, make, model, color, year, vin))
-    except mysql.connector.Error as e:
-        error_message = "Error updating vehicle: " + str(e)
-        return jsonify({'error': error_message})
+         # Check if the new vin already exists and is not the old vin
+        cursor.execute("SELECT * FROM vehicle WHERE vin = %s AND vin != %s", (new_vin, old_vin))
+        if cursor.fetchone():
+            return jsonify({'error': 'A vehicle with the new vin already exists'}), 400
+        
+        query = "UPDATE vehicle SET vin = %s, owner = %s, make = %s, model = %s, color = %s, year = %s WHERE vin = %s"
+        cursor.execute(query, (new_vin, owner, make, model, color, year, old_vin))
+        conn.commit()
+        return jsonify({'message': 'Vehicle updated successfully'}), 200
 
-    conn.commit()
-    return jsonify({'message': 'Vehicle updated successfully'}), 200
+    except mysql.connector.Error as e:
+        return jsonify({'error': f"Error updating vehicle: {str(e)}"}), 500
 
 
 
@@ -458,7 +463,7 @@ def addServiceType():
     return jsonify({'message': 'service type added successfully'}), 200
 
 ## example request: http://127.0.0.1:5000/shopWizard/removeServiceType?id=101
-@app.route('/shopWizard/removeServiceType', methods = ['get'])
+@app.route('/shopWizard/removeServiceType', methods = ['delete'])
 def removeServiceType():
     ## extract input
     id = request.args.get('id')
@@ -484,23 +489,30 @@ def removeServiceType():
 # Update service type details
 @app.route('/shopWizard/updateServiceType', methods=['PUT'])
 def updateServiceType():
-    id = request.json.get('id')
+    old_id = request.json.get('old_id')
+    new_id = request.json.get('new_id')
     name = request.json.get('name')
     cost = request.json.get('cost')
     duration = request.json.get('duration')
 
-    if not all([id, name, cost, duration]):
+    if not all([old_id, new_id, name, cost, duration]):
         return jsonify({'error': 'Missing required fields: id, name, cost, or duration'}), 400
 
     try:
-        query = "UPDATE serviceType SET name = %s, cost = %s, duration = %s WHERE id = %s"
-        cursor.execute(query, (name, cost, duration, id))
-    except mysql.connector.Error as e:
-        error_message = "Error updating service type: " + str(e)
-        return jsonify({'error': error_message})
+         # Check if the new ID already exists and is not the old ID
+        cursor.execute("SELECT * FROM servicetype WHERE id = %s AND id != %s", (new_id, old_id))
+        if cursor.fetchone():
+            return jsonify({'error': 'A servicetype with the new ID already exists'}), 400
 
-    conn.commit()
-    return jsonify({'message': 'Service type updated successfully'}), 200
+        query = "UPDATE serviceType SET id = %s, name = %s, cost = %s, duration = %s WHERE id = %s"
+        cursor.execute(query, (new_id, name, cost, duration, old_id))
+        conn.commit()
+        return jsonify({'message': 'Service type updated successfully'}), 200
+
+    except mysql.connector.Error as e:
+        return jsonify({'error': "Error updating serviceType: {str(e)}"}), 500
+
+    
 
 
 

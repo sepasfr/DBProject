@@ -145,6 +145,13 @@ const Vehicles = () => {
         return fieldValue.includes(searchValue);
     });
 
+    const getSortDirectionSymbol = (name) => {
+        if (sortConfig.key === name) {
+            return sortConfig.direction === 'ascending' ? '⮝' : '⮟';
+        }
+        return '-'; // Default symbol when not sorted
+    };    
+
     return (
         <div style={{ width: '80%', margin: '0 auto', textAlign: 'center' }}>
             <h2>Vehicle List</h2>
@@ -170,12 +177,24 @@ const Vehicles = () => {
                 <table style={{ width: '100%', tableLayout: 'fixed', borderCollapse: 'separate', borderSpacing: '0 10px' }}>
                     <thead>
                         <tr>
-                            <th onClick={() => requestSort('vin')} style={{ cursor: 'pointer' }}>VIN</th>
-                            <th onClick={() => requestSort('owner')} style={{ cursor: 'pointer' }}>Owner</th>
-                            <th onClick={() => requestSort('make')} style={{ cursor: 'pointer' }}>Make</th>
-                            <th onClick={() => requestSort('model')} style={{ cursor: 'pointer' }}>Model</th>
-                            <th onClick={() => requestSort('color')} style={{ cursor: 'pointer' }}>Color</th>
-                            <th onClick={() => requestSort('year')} style={{ cursor: 'pointer' }}>Year</th>
+                            <th onClick={() => requestSort('vin')} style={{ cursor: 'pointer' }}>
+                                VIN {getSortDirectionSymbol('vin')}
+                            </th>
+                            <th onClick={() => requestSort('owner')} style={{ cursor: 'pointer' }}>
+                                Owner {getSortDirectionSymbol('owner')}
+                            </th>
+                            <th onClick={() => requestSort('make')} style={{ cursor: 'pointer' }}>
+                                Make {getSortDirectionSymbol('make')}
+                            </th>
+                            <th onClick={() => requestSort('model')} style={{ cursor: 'pointer' }}>
+                                Model {getSortDirectionSymbol('model')}
+                            </th>
+                            <th onClick={() => requestSort('color')} style={{ cursor: 'pointer' }}>
+                                Color {getSortDirectionSymbol('color')}
+                            </th>
+                            <th onClick={() => requestSort('year')} style={{ cursor: 'pointer' }}>
+                                Year {getSortDirectionSymbol('year')}
+                            </th>
                             <th>Actions</th>
                         </tr>
                     </thead>

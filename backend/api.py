@@ -656,20 +656,18 @@ def addAppointment():
     serviceType = request.json.get('serviceType')
     note = request.json.get('note')
 
-    if not all([day, customer, vehicle, serviceType]):
-        return jsonify({'error': 'Missing required fields'}), 400
-
-    query = "INSERT INTO appointment (day, customer, vehicle, serviceType, note) VALUES (%s, %s, %s, %s, %s)"
     try:
+        query = "INSERT INTO appointment (day, customer, vehicle, serviceType, note) VALUES (%s, %s, %s, %s, %s)"
         cursor.execute(query, (day, customer, vehicle, serviceType, note))
         conn.commit()
         return jsonify({'message': 'Appointment added successfully'}), 201
     except Exception as e:
+        print(str(e))
         return jsonify({'error': str(e)}), 500
 
-## example request: http://127.0.0.1:5000/shopWizard/deleteAppointment?id=2001
-@app.route('/shopWizard/deleteAppointment', methods=['DELETE'])
-def deleteAppointment():
+## example request: http://127.0.0.1:5000/shopWizard/removeAppointment?id=2001
+@app.route('/shopWizard/removeAppointment', methods=['DELETE'])
+def removeAppointment():
     appointment_id = request.args.get('id')
     if not appointment_id:
         return jsonify({'error': 'Missing required parameter: id'}), 400
@@ -692,18 +690,14 @@ def updateAppointment():
     serviceType = request.json.get('serviceType')
     note = request.json.get('note')
 
-    if not all([id, day, customer, vehicle, serviceType]):
-        return jsonify({'error': 'Missing required fields: id, day, customer, vehicle, or serviceType'}), 400
-
     try:
         query = "UPDATE appointment SET day = %s, customer = %s, vehicle = %s, serviceType = %s, note = %s WHERE id = %s"
         cursor.execute(query, (day, customer, vehicle, serviceType, note, id))
+        conn.commit()
+        return jsonify({'message': 'Appointment updated successfully'}), 200
     except mysql.connector.Error as e:
-        error_message = "Error updating appointment: " + str(e)
-        return jsonify({'error': error_message})
-
-    conn.commit()
-    return jsonify({'message': 'Appointment updated successfully'}), 200
+        print(str(e))
+        return jsonify({'error': "Error updating appointment: {str(e)}"}), 500
 
 
 

@@ -50,10 +50,11 @@ CREATE TABLE job (
 
 -- Represents an individual appointment
 CREATE TABLE appointment (
-    day DATETIME NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    day DATETIME DEFAULT NULL,
     customer CHAR(10) DEFAULT NULL,
-    vehicle VARCHAR(20) NOT NULL,
-    serviceType VARCHAR(20) NOT NULL,
+    vehicle VARCHAR(20) DEFAULT NULL,
+    serviceType VARCHAR(20) DEFAULT NULL,
     note TEXT DEFAULT NULL,
     FOREIGN KEY (customer) REFERENCES customer(phone) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (vehicle) REFERENCES vehicle(vin) ON DELETE CASCADE ON UPDATE CASCADE,

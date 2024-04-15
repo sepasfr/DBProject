@@ -81,6 +81,8 @@ const ServicePricing = () => {
         let direction = 'ascending';
         if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
             direction = 'descending';
+        } else {
+            direction = 'ascending';
         }
         setSortConfig({ key, direction });
         sortServices(key, direction);
@@ -88,8 +90,16 @@ const ServicePricing = () => {
 
     const sortServices = (key, direction) => {
         const sortedServices = [...services].sort((a, b) => {
-            if (a[key] < b[key]) return direction === 'ascending' ? -1 : 1;
-            if (a[key] > b[key]) return direction === 'ascending' ? 1 : -1;
+            // Convert to numbers if the key is 'cost' or 'duration'
+            let valA = (key === 'cost' || key === 'duration') ? parseFloat(a[key]) : a[key];
+            let valB = (key === 'cost' || key === 'duration') ? parseFloat(b[key]) : b[key];
+    
+            // Check if the values are not numbers (NaN) and revert to original if true
+            valA = isNaN(valA) ? a[key] : valA;
+            valB = isNaN(valB) ? b[key] : valB;
+    
+            if (valA < valB) return direction === 'ascending' ? -1 : 1;
+            if (valA > valB) return direction === 'ascending' ? 1 : -1;
             return 0;
         });
         setServices(sortedServices);
@@ -139,6 +149,13 @@ const ServicePricing = () => {
         return fieldValue.includes(searchValue);
     });
 
+    const getSortDirectionSymbol = (name) => {
+        if (sortConfig.key === name) {
+            return sortConfig.direction === 'ascending' ? '⮝' : '⮟';
+        }
+        return '-'; // No symbol if not sorted
+    };    
+
     return (
         <div style={{ width: '80%', margin: '0 auto', textAlign: 'center' }}>
             <h2>Service Pricing List</h2>
@@ -162,13 +179,22 @@ const ServicePricing = () => {
                 <table style={{ width: '100%', tableLayout: 'fixed', borderCollapse: 'separate', borderSpacing: '0 10px' }}>
                     <thead>
                         <tr>
-                            <th onClick={() => requestSort('name')} style={{ cursor: 'pointer' }}>Name</th>
-                            <th onClick={() => requestSort('cost')} style={{ cursor: 'pointer' }}>Cost</th>
-                            <th onClick={() => requestSort('duration')} style={{ cursor: 'pointer' }}>Duration</th>
-                            <th onClick={() => requestSort('id')} style={{ cursor: 'pointer' }}>ID</th>
+                            <th onClick={() => requestSort('name')} style={{ cursor: 'pointer' }}>
+                                Name {getSortDirectionSymbol('name')}
+                            </th>
+                            <th onClick={() => requestSort('cost')} style={{ cursor: 'pointer' }}>
+                                Cost {getSortDirectionSymbol('cost')}
+                            </th>
+                            <th onClick={() => requestSort('duration')} style={{ cursor: 'pointer' }}>
+                                Duration {getSortDirectionSymbol('duration')}
+                            </th>
+                            <th onClick={() => requestSort('id')} style={{ cursor: 'pointer' }}>
+                                ID {getSortDirectionSymbol('id')}
+                            </th>
                             <th>Actions</th>
                         </tr>
                     </thead>
+
                     <tbody>
                         {loading ? (
                             <tr><td colSpan="5">Loading...</td></tr>

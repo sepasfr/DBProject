@@ -246,27 +246,44 @@ const Appointments = () => {
                     <div className="modal-content">
                         <h2>Add Appointment</h2>
                         <div>
+                            <label>Day:</label>
                             <input
                                 type="datetime-local"
-                                value={editAppointmentData.day ? editAppointmentData.day.slice(0, 16) : ''}
-                                onChange={(e) => handleEditChange('day', e.target.value)}
+                                value={newAppointmentData.day}
+                                onChange={(e) => handleAddModalInputChange('day', e.target.value)}
                             />
                         </div>
                         <div>
                             <label>Customer:</label>
-                            <input type="text" value={newAppointmentData.customer} onChange={(e) => handleAddModalInputChange('customer', e.target.value)} />
+                            <input
+                                type="text"
+                                value={newAppointmentData.customer}
+                                onChange={(e) => handleAddModalInputChange('customer', e.target.value)}
+                            />
                         </div>
                         <div>
                             <label>Vehicle:</label>
-                            <input type="text" value={newAppointmentData.vehicle} onChange={(e) => handleAddModalInputChange('vehicle', e.target.value)} />
+                            <input
+                                type="text"
+                                value={newAppointmentData.vehicle}
+                                onChange={(e) => handleAddModalInputChange('vehicle', e.target.value)}
+                            />
                         </div>
                         <div>
                             <label>Service Type:</label>
-                            <input type="text" value={newAppointmentData.serviceType} onChange={(e) => handleAddModalInputChange('serviceType', e.target.value)} />
+                            <input
+                                type="text"
+                                value={newAppointmentData.serviceType}
+                                onChange={(e) => handleAddModalInputChange('serviceType', e.target.value)}
+                            />
                         </div>
                         <div>
                             <label>Note:</label>
-                            <input type="text" value={newAppointmentData.note} onChange={(e) => handleAddModalInputChange('note', e.target.value)} />
+                            <input
+                                type="text"
+                                value={newAppointmentData.note}
+                                onChange={(e) => handleAddModalInputChange('note', e.target.value)}
+                            />
                         </div>
                         <div>
                             {addAppointmentError && <p className="error-message">{addAppointmentError}</p>}
@@ -278,6 +295,7 @@ const Appointments = () => {
                     </div>
                 </div>
             )}
+
             {editAppointmentData && (
                 <div className="modal-overlay">
                     <div className="modal-content">

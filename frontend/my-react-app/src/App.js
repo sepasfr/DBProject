@@ -5,7 +5,7 @@ import Appointments from './Appointments';
 import Mechanics from './Mechanics';
 import Vehicles from './Vehicles';
 import ServicePricing from './ServicePricing';
-import ServiceTracking from './ServiceTracking';
+import JobList from './Jobs';
 import Customers from './Customers';
 import './App.css';
 
@@ -27,7 +27,7 @@ const App = () => {
             <li><Link to="/mechanics">Mechanics</Link></li>
             <li><Link to="/customers">Customers</Link></li>
             <li><Link to="/Vehicles">Vehicles</Link></li>
-            <li><Link to="/service-tracking">Service Tracking</Link></li>
+            <li><Link to="/jobs">Jobs</Link></li>
             <li><Link to="/appointments">Appointments</Link></li>
             <li><Link to="/service-pricing">Service Pricing</Link></li>
           </ul>
@@ -37,7 +37,7 @@ const App = () => {
           <Route path="/mechanics" element={<Mechanics />} />
           <Route path="/customers" element={<Customers />} />
           <Route path="/vehicles" element={<Vehicles />} />
-          <Route path="/service-tracking" element={<ServiceTracking />} />
+          <Route path="/jobs" element={<JobList />} />
           <Route path="/appointments" element={<Appointments />} />
           <Route path="/service-pricing" element={<ServicePricing />} />
           <Route path="/" element={<Home />} />

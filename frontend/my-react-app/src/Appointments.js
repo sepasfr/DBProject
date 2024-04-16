@@ -187,7 +187,6 @@ const Appointments = () => {
                     onChange={(e) => handleSearchInputChange(e.target.value)}
                 />
                 <select value={searchColumn} onChange={(e) => handleSearchColumnChange(e.target.value)}>
-                    <option value="id">Id</option>
                     <option value="day">Day</option>
                     <option value="customer">Customer</option>
                     <option value="vehicle">Vehicle</option>
@@ -201,9 +200,6 @@ const Appointments = () => {
                 <table style={{ width: '100%', tableLayout: 'fixed', borderCollapse: 'separate', borderSpacing: '0 10px' }}>
                     <thead>
                         <tr>
-                            <th onClick={() => requestSort('id')} style={{ cursor: 'pointer' }}>
-                                Id {getSortDirectionSymbol('id')}
-                            </th>
                             <th onClick={() => requestSort('day')} style={{ cursor: 'pointer' }}>
                                 Day {getSortDirectionSymbol('day')}
                             </th>
@@ -229,12 +225,11 @@ const Appointments = () => {
                         ) : (
                             filteredAppointments.map((appointment, index) => (
                                 <tr key={index}>
-                                    <td>{appointment.id}</td>
                                     <td>{appointment.day}</td>
-                                    <td>{appointment.customer}</td>
-                                    <td>{appointment.vehicle}</td>
+                                    <td className="ellipsis">{appointment.customer}</td>
+                                    <td className="ellipsis">{appointment.vehicle}</td>
                                     <td>{appointment.serviceType}</td>
-                                    <td>{appointment.note}</td>
+                                    <td className="ellipsis">{appointment.note}</td>
                                     <td>
                                         <button onClick={() => openEditModal(appointment)}>Edit</button>
                                         <button onClick={() => confirmDeleteAppointment(appointment.id)}>Delete</button>

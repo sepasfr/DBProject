@@ -589,17 +589,14 @@ def deleteJob():
 @app.route('/shopWizard/updateJob', methods=['PUT'])
 def updateJob():
     id = request.json.get('id')
-    vehicle = request.json.get('vehicle')
-    mechanic = request.json.get('mechanic')
-    serviceType = request.json.get('serviceType')
     status = request.json.get('status')
 
-    if not all([id, vehicle, serviceType]):
+    if not all([id, status]):
         return jsonify({'error': 'Missing required fields: id, vehicle, or serviceType'}), 400
 
     try:
-        query = "UPDATE job SET vehicle = %s, mechanic = %s, serviceType = %s, status = %s WHERE id = %s"
-        cursor.execute(query, (vehicle, mechanic, serviceType, status, id))
+        query = "UPDATE job SET status = %s WHERE id = %s"
+        cursor.execute(query, (status, id))
     except mysql.connector.Error as e:
         error_message = "Error updating job: " + str(e)
         return jsonify({'error': error_message})
